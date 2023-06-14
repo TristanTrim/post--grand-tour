@@ -7,9 +7,9 @@
     <meta name="keywords" content="html tutorial template">
     </head>
     <body>
-      <a href="src/index.html">Go here.</a>
-        <br>
-        <a href="javascript:(function() {
+      <a href="
+
+               javascript:(function() {
   window.circle = document.createElement('div');
   window.circle.style.position = 'absolute';
   window.circle.style.top = '50%';
@@ -20,7 +20,6 @@
   window.circle.style.width = '50px';
   window.circle.style.height = '50px';
   window.circle.style.pointerEvents = 'none';
-  window.circle.style.animation = 'blinking 0.2s infinite';
   
   document.body.appendChild(window.circle);
   
@@ -41,12 +40,14 @@
   document.addEventListener('mouseup', function(event) {
     setTimeout(function() {
       window.circle.style.visibility ='hidden';
-    }, 600);
+    }, 200);
   });
   
   var styleSheet = document.createElement('style');
   styleSheet.innerHTML = '@keyframes blinking {0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;}}';
   document.head.appendChild(styleSheet);
-})();">Here's a click hl bookmarklet.</a>
+})();
+                 
+                 ">Here's a click hl bookmarklet.</a>
     </body>
     </html>
