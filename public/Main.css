@@ -1,0 +1,10 @@
+body{
+	margin: 5px;
+	background: rgba(20, 20, 25, 1);
+	color: rgba(210,220,255,1);
+}
+
+h1{
+	background: rgba(40, 35, 40, 1);
+	color: rgba(210,220,255,1);
+}

@@ -1,0 +1,91 @@
+<html>
+<head>
+	<title>multi-dimensinoal neuralnet visualizer</title>
+	<link href="Main.css" type="text/css" rel="stylesheet">
+	
+	
+	 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+
+<script src="js/lib/webgl_utils/webgl-utils.js"></script>
+<script src="js/lib/webgl_utils/initShaders2.js"></script>
+<script src="js/lib/webgl_utils/MV.js"></script>
+<script src="js/lib/numeric-1.2.6.js"></script>
+<script src="js/lib/math.js"></script>
+<script src="js/lib/lz-string.js"></script>
+<script src="js/lib/d3/v5/d3.js"></script>
+
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/constants.js"></script>
+<script src="js/modules/GrandTour.js"></script>
+
+<script src="js/modules/TeaserRenderer.js"></script>
+<script src="js/modules/TeaserOverlay.js"></script>
+
+<script src="js/modules/SoftmaxComparisonRenderer.js"></script>
+<script src="js/modules/SoftmaxComparisonOverlay.js"></script>
+
+ <script src="js/modules/ConfusionMatrixRenderer.js"></script> 
+
+<script src="js/modules/TesseractRenderer.js"></script>
+<script src="js/modules/TesseractOverlay.js"></script>
+
+ <script src="js/modules/NeuralNetRenderer.js"></script> 
+<script src="js/modules/NeuralNetOverlay.js"></script>
+
+<script src="js/modules/SmallMultipleRenderer.js"></script>
+<script src="js/modules/SmallMultipleOverlay.js"></script>
+<script src="js/sm0.js"></script>
+
+<script src="js/modules/LayerTransitionRenderer.js"></script>
+<script src="js/modules/LayerTransitionOverlay.js"></script>
+
+<script src="js/modules/LossHistoryRenderer.js"></script>
+
+
+<script>
+  utils.cacheAll(constants.preloadUrls);
+
+  //Note: safari does not support window.requestIdleCallback
+  if(window.requestIdleCallback){ 
+    for (let url of constants.layerTransitionUrls['fashion-mnist']){
+      window.requestIdleCallback(()=>{utils.cacheAll([url,] )});
+    }
+    for (let url of constants.adversarialUrls){
+      window.requestIdleCallback(()=>{utils.cacheAll([url,] )});
+    }
+  }
+  
+  
+   window.requestIdleCallback(()=>{utils.cacheAll(constants.adversarialUrls)});
+   window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['fashion-mnist'])});
+   window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['mnist'])});
+   window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['cifar10'])});
+  // 
+
+  let allViews = [];// teaser, nn2, sm0, nngt, tesseract, se, dm1, nngt2, lt2, lta];
+</script>
+
+
+
+</head>
+<body>
+	<h1><b>
+	Multi-dimensional neuralnet visualizer
+	</b></h1>
+	
+	<form>
+		<label for="pages">Select a deta set:</label>
+		<select id="pages" name="pages" onchange="window.location.href=this.value">
+			<option value="datasetA.html">datasetA</option>
+			<option value="datasetB.html">datasetB</option>
+			<option value="datasetC.html" selected>datasetC</option>
+			<option value="datasetD.html">datasetD</option>
+		</select>
+	</form>
+	
+	<d-figure class='nngt-single-epoch-1' style="">
+		<canvas id='nngt-single-epoch-1' class='grandtour'></canvas>
+		<script src='js/se1.js'></script>
+	</d-figure>
+</body>
+</html>
