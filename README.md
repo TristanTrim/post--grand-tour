@@ -1,3 +1,8 @@
+# Extention on Grand Tour for SENG310 Project
+
+This is the repository of our UVic SENG310 (human computer interaction) course project. We want to do some extensions to some of the visualizations in the grand tour and see how it affects human computer interaction usability.
+
+Please find below: the introduction to the original repo:
 
 # Visualizing Neural Networks with the Grand Tour
 
