@@ -1,3 +1,4 @@
+
 <!doctype html>
 
 <head>
@@ -82,11 +83,21 @@
 }
 </style>
 
-<title>Visualizing Neural Networks with the Grand Tour</title>
+<title>Dimension Bros</title>
 
 </head>
 
 <body>
+
+
+
+<script>
+  let c = utils.CLEAR_COLOR.map(d=>d*255);
+  d3.selectAll('.flex-item')
+  .style('background', d3.rgb(...c))
+</script>
+
+<d-article>
 
 
 
@@ -97,30 +108,20 @@
   <script src='js/se1.js'></script>
 </d-figure>
 <figcaption>
-    Please excuse our early alpha development prototype. It tries.
+  The Grand Tour of softmax layer, with 
+  <a onclick="utils.setDataset('mnist');">MNIST</a>, 
+  <a onclick="utils.setDataset('fashion-mnist');">fashion-MNIST</a> or 
+  <a onclick="utils.setDataset('cifar10');">CIFAR-10</a> dataset.
 </figcaption>
-Hey! Here's some links:
-  <a href="" onclick="utils.setDataset('mnist');">MNIST</a>, 
-  <a href="" onclick="utils.setDataset('fashion-mnist');">fashion-MNIST</a> or 
-  <a href="" onclick="utils.setDataset('cifar10');">CIFAR-10</a> dataset.
 
 
 
-  <!-- <h3>Author Contributions</h3>
-  <p>
-    <b>Research:</b> Alex developed ...
-  </p>
-
-  <p>
-    <b>Writing & Diagrams:</b> The text was initially drafted by...
-  </p> -->
+  </ul>
+</p>
 
 
-  <d-footnote-list></d-footnote-list>
-  <d-citation-list></d-citation-list>
-</d-appendix>
+</d-article>
 
-<!-- bibliography will be inlined during Distill pipeline's pre-rendering -->
-<d-bibliography src="bibliography.bib"></d-bibliography>
+
 
 <script type="text/javascript" src="index.bundle.js"></script></body>
