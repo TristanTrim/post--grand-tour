@@ -11,6 +11,7 @@ varying highp vec2 v_textureCoord;
 
 
 void main() {
+
   if (mode == 0) { //drawing data points as dots
     gl_FragColor = v_color;
     if (!isDrawingAxis) {

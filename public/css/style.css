@@ -1,4 +1,7 @@
 
+body {
+  background-color: #222;
+}
 
 d-title p{
   border-bottom: solid 1px rgba(0, 0, 0, 0.1);
@@ -148,6 +151,7 @@ button.annotation{
 
 label{
   margin-right: 0.3em;
+  color: #999;
 }
 
 svg.confusionMatrix{
@@ -193,7 +197,7 @@ svg text{
         user-select: none;
         font-weight: normal;
         font-size: 8.5pt;
-        fill: #333;
+        fill: #999;
 }
 
 /*svg text.epoch, */
@@ -277,6 +281,10 @@ d-figure.teaser.fullscreen{
 #teaser{
     width: 100%;     
     height: 100%;
+}
+
+figcaption{
+  color: #999;
 }
 figcaption.teaser{
   grid-column: text;

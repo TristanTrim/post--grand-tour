@@ -139,7 +139,7 @@ function TeaserRenderer(gl, program, kwargs) {
     utils.resizeCanvas(gl.canvas);
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.clearColor(...utils.CLEAR_COLOR, 1.0);
+    gl.clearColor(...utils.CLEAR_COLOR, 0.0);
 
     // gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
@@ -399,7 +399,7 @@ function TeaserRenderer(gl, program, kwargs) {
     
     gl.viewport(0,0, gl.canvas.width, gl.canvas.height);
 
-    gl.clearColor(...utils.CLEAR_COLOR, 1.0);
+    gl.clearColor(...utils.CLEAR_COLOR, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
