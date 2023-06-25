@@ -700,6 +700,14 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
   let res = [];
 
   //points
+    //
+  let orig = sideLength;
+
+  //let bigger = 5*sideLength
+  let bigger = 
+        Math.abs(Math.sin(Date.now()/1000)*5)
+        *sideLength;
+
   for (let i=0; i<npoint; i++) {
     let x = points[i][0];
     let y = points[i][1];
@@ -713,6 +721,12 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
       ll = [x-sideLength/2, y-sideLength/2, z]; // lower left
       lr = [x+sideLength/2, y-sideLength/2, z]; // lower right
     }else{
+        if( npoint-i < 7 ){
+            //i%100 <1){
+          sideLength = bigger;
+      }else{
+          sideLength = orig;
+      }
       // points in canvas coordinate (so downward means y-coord increase)
       ul = [x-sideLength/2, y-sideLength/2, z]; // upper left
       ur = [x+sideLength/2, y-sideLength/2, z]; // upper right
