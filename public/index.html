@@ -106,6 +106,26 @@
 <d-figure class='nngt-single-epoch-1' style="">
   <canvas id='nngt-single-epoch-1' class='grandtour'></canvas>
   <script src='js/se1.js'></script>
+  <script>   
+    //Zoom in and out via scrool wheel
+    window.addEventListener("wheel", event => {
+      const delta = Math.sign(event.deltaY);
+      if (delta < 0) {
+        se1.scaleFactor += 0.1; //up
+        if (se1.scaleFactor > 5) { //max zoom
+          se1.scaleFactor = 5;
+        }
+        //se1.setScaleFactor(se1.scaleFactor + 0.1)
+      } else if (delta > 0) {
+        se1.scaleFactor -= 0.1; //down
+        if (se1.scaleFactor < 0.2) { //min zoom
+          se1.scaleFactor = 0.2;
+        }
+        //se1.setScaleFactor(se1.scaleFactor - 0.1);
+      }
+      console.info(se1.scaleFactor);
+    });
+    </script>
 </d-figure>
 <figcaption>
   The Grand Tour of softmax layer, with 
