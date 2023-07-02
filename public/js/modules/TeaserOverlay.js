@@ -662,7 +662,11 @@ function TeaserOverlay(renderer, kwargs) {
         var difference = max-min;
         difference = clamp(difference, 0, 100);
         for (var i = 0; i < percentages.length; i++) {
-          percentages[i].innerHTML = difference + percentagesOffset[i] + '%';//percentagesOffset[i];
+          if (difference == 0 || difference == 100) {
+            percentages[i].innerHTML = clamp(difference , 0, 100) + '%';
+          } else {
+            percentages[i].innerHTML = clamp(difference + percentagesOffset[i], 0, 100) + '%';
+          }
         }
       });;
 
