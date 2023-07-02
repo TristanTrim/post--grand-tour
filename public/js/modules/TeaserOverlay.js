@@ -153,6 +153,7 @@ function TeaserOverlay(renderer, kwargs) {
     .attr('class', 'overlay')
     .attr('width', width)
     .attr('height', height)
+    .attr('xmlns:xhtml', 'http://www.w3.org/1999/xhtml') //WALKER: this is required to make "foreignObjects" tags work
     .on('dblclick', function() {
       // renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
     })
@@ -334,23 +335,23 @@ function TeaserOverlay(renderer, kwargs) {
 
     this.legendText
       .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
-      .attr('y', (l, i)=>this.legend_sy(i+0.5));
+      .attr('y', (l, i)=>this.legend_sy(i+0.7));
 
     //WALKER: declaring legend count
     this.legendCount
       .attr('x', +this.legend_sx(0.0)+2.5*r+8*r) //8 is a magic value for padding, dunno what it means
-      .attr('y', (l, i)=>this.legend_sy(i+0.5));
+      .attr('y', (l, i)=>this.legend_sy(i+0.7));
 
     //WALKER: declaring filter
     this.confidenceFilter
-      .attr('x', this.legend_sx(0.0)+2.5*r)
-      .attr('y', +this.legend_sy(utils.getLabelNames(renderer.hasAdversarial).length));
+      .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
+      .attr('y', this.legend_sy(utils.getLabelNames().length+1)-this.legend_sy(-3));
 
     this.legendBox
       .attr('x', this.legend_sx.range()[0])
       .attr('y', this.legend_sy(-1))
       .attr('width', this.legend_sx.range()[1]-this.legend_sx.range()[0])
-      .attr('height', this.legend_sy(utils.getLabelNames().length+1)-this.legend_sy(-1))
+      .attr('height', this.legend_sy(utils.getLabelNames().length+1)-this.legend_sy(-7)) // WALKER: TODO: increase this later to allow room for more filter tools
       .attr('rx', r);
 
     if (this.legendTitle !== undefined){
@@ -600,11 +601,28 @@ function TeaserOverlay(renderer, kwargs) {
       .data(['100%', '90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%']) //array of percentages/count will go here
       .enter() //dont really know what this is for but its needed
       .append('text')
-      .attr('class', 'legendCount');
-
-    this.legendCount = this.svg.selectAll('.legendCount')
-      .attr('fill', '#333')
+      .attr('class', 'legendCount')
+      //.attr('fill', '#333')
       .text((l)=>l);
+
+    this.legendCount = this.svg.selectAll('.legendCount');
+
+    // WALKER: TODO: restrict input values to only digits
+    this.svg.selectAll(".confidenceFilter")
+      .data(['100'])
+      .enter()
+      .append('foreignObject')
+      .attr('class', 'confidenceFilter')
+      .attr('width', '100')
+      .attr('height', '100')
+      .append('xhtml:input')
+      .attr('class', 'confidenceFilter')
+      .attr('type', 'text')
+      .attr('size', '3')
+      .attr('value', '0');
+
+    this.confidenceFilter = this.svg.select('.confidenceFilter');
+      
   };
 
 
