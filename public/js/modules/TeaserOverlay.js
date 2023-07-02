@@ -652,7 +652,19 @@ function TeaserOverlay(renderer, kwargs) {
       .append('xhtml:input')
       .attr('type', 'button')
       .attr('value', 'apply')
-      .attr('style', 'width: 80px; line-height: 15px; font-size: 10px;');
+      .attr('style', 'width: 80px; line-height: 15px; font-size: 10px;')
+      .on('click', ()=>{
+        const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+        var percentagesOffset= [4, -1, 0, 2, -9, 11, 7, 3, -8, -1];
+        var percentages = document.getElementsByClassName('legendCount');
+        var min = parseInt(document.getElementById('minConfidence').value);
+        var max = parseInt(document.getElementById('maxConfidence').value);
+        var difference = max-min;
+        difference = clamp(difference, 0, 100);
+        for (var i = 0; i < percentages.length; i++) {
+          percentages[i].innerHTML = difference + percentagesOffset[i] + '%';//percentagesOffset[i];
+        }
+      });;
 
     this.confidenceFilter = this.svg.select('.confidenceFilter');
       
