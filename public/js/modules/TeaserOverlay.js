@@ -336,6 +336,16 @@ function TeaserOverlay(renderer, kwargs) {
       .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
       .attr('y', (l, i)=>this.legend_sy(i+0.5));
 
+    //WALKER: declaring legend count
+    this.legendCount
+      .attr('x', +this.legend_sx(0.0)+2.5*r+8*r) //8 is a magic value for padding, dunno what it means
+      .attr('y', (l, i)=>this.legend_sy(i+0.5));
+
+    //WALKER: declaring filter
+    this.confidenceFilter
+      .attr('x', this.legend_sx(0.0)+2.5*r)
+      .attr('y', +this.legend_sy(utils.getLabelNames(renderer.hasAdversarial).length));
+
     this.legendBox
       .attr('x', this.legend_sx.range()[0])
       .attr('y', this.legend_sy(-1))
@@ -474,12 +484,13 @@ function TeaserOverlay(renderer, kwargs) {
     // .attr('opacity', 0.1);
   };
 
+  //WALKER: this is where the size of the legend box is created
   this.initLegendScale = function(){
     let width = +this.svg.attr('width');
     let marginTop = 20;
     let padding = 8;
 
-    let legendLeft = width - utils.legendLeft[this.getDataset()];
+    let legendLeft = width - utils.legendLeft[this.getDataset()]; //WALKER: could hardcode this if need be
     let legendRight = width - utils.legendRight[this.getDataset()];
     
     this.legend_sx = d3.scaleLinear()
@@ -490,6 +501,7 @@ function TeaserOverlay(renderer, kwargs) {
       .range([marginTop-padding, marginTop, marginTop+170, marginTop+170+padding]);
   };
 
+  //WALKER: this is where the legend is created
   this.initLegend = function(colors, labels) {
       
     this.initLegendScale();
@@ -582,6 +594,17 @@ function TeaserOverlay(renderer, kwargs) {
           this.selectedClasses = new Set();
         }
       });
+
+    //WALKER: text area that will contain amount of points visable
+    this.svg.selectAll(".legendCount")
+      .data(['100%', '90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%']) //array of percentages/count will go here
+      .enter() //dont really know what this is for but its needed
+      .append('text')
+      .attr('class', 'legendCount');
+
+    this.legendCount = this.svg.selectAll('.legendCount')
+      .attr('fill', '#333')
+      .text((l)=>l);
   };
 
 

@@ -239,6 +239,8 @@ function NeuralNetOverlay(svgid) {
       .attr('opacity', 1);
       // .attr('fill', text=>getColor(text));
     });
+
+    
   };//end of drawLegend
 
 

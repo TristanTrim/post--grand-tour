@@ -30,7 +30,7 @@ utils.pointAlpha = 255 * 0.1;
 
 //legend of teaser, grand tour plots
 utils.legendLeft = {
-  'mnist':55,
+  'mnist':95,
   'fashion-mnist':95,
   'cifar10':95,
   'mnist-adversarial': 95
@@ -44,7 +44,7 @@ utils.legendRight = {
 
 //legend of small multiple
 utils.smLegendLeft = {
-  'mnist':45,
+  'mnist':85,
   'fashion-mnist':85,
   'cifar10':85,
   'mnist-adversarial': 85
