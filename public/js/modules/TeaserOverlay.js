@@ -647,6 +647,12 @@ function TeaserOverlay(renderer, kwargs) {
     this.confidenceFilter
       .append('xhtml:text')
       .text('%');
+    
+    this.confidenceFilter
+      .append('xhtml:input')
+      .attr('type', 'button')
+      .attr('value', 'apply')
+      .attr('style', 'width: 80px; line-height: 15px; font-size: 10px;');
 
     this.confidenceFilter = this.svg.select('.confidenceFilter');
       
