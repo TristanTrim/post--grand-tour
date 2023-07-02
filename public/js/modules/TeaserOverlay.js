@@ -344,8 +344,8 @@ function TeaserOverlay(renderer, kwargs) {
 
     //WALKER: declaring filter
     this.confidenceFilter
-      .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
-      .attr('y', this.legend_sy(utils.getLabelNames().length+1)-this.legend_sy(-3));
+      .attr('x', +this.legend_sx(0.0)+2.5*r-5)
+      .attr('y', this.legend_sy(utils.getLabelNames().length+1)-this.legend_sy(-1));
 
     this.legendBox
       .attr('x', this.legend_sx.range()[0])
@@ -608,18 +608,45 @@ function TeaserOverlay(renderer, kwargs) {
     this.legendCount = this.svg.selectAll('.legendCount');
 
     // WALKER: TODO: restrict input values to only digits
-    this.svg.selectAll(".confidenceFilter")
+    this.confidenceFilter = this.svg.selectAll(".confidenceFilter")
       .data(['100'])
       .enter()
       .append('foreignObject')
       .attr('class', 'confidenceFilter')
       .attr('width', '100')
-      .attr('height', '100')
+      .attr('height', '100');
+
+    //min confidence
+    this.confidenceFilter
       .append('xhtml:input')
+      .attr('id', 'minConfidence')
       .attr('class', 'confidenceFilter')
-      .attr('type', 'text')
+      .attr('type', 'number')
+      .attr('min', '0')
+      .attr('max', '100')
       .attr('size', '3')
-      .attr('value', '0');
+      .attr('value', '0')
+      .attr('style', 'width: 35px; height: 20px; font-size: 10px; -webkit-appearance: none; -moz-appearance: textfield;'); //would love to put this in style.css but cant get it to work
+
+    this.confidenceFilter
+      .append('xhtml:text')
+      .text('-');
+
+    //max confidence
+    this.confidenceFilter
+      .append('xhtml:input')
+      .attr('id', 'maxConfidence')
+      .attr('class', 'confidenceFilter')
+      .attr('type', 'number')
+      .attr('min', '0')
+      .attr('max', '100')
+      .attr('size', '3')
+      .attr('value', '100')
+      .attr('style', 'width: 35px; height: 20px; font-size: 10px; -webkit-appearance: none; -moz-appearance: textfield;');//would love to put this in style.css but cant get it to work
+      
+    this.confidenceFilter
+      .append('xhtml:text')
+      .text('%');
 
     this.confidenceFilter = this.svg.select('.confidenceFilter');
       
