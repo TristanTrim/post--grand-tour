@@ -603,7 +603,7 @@ function TeaserOverlay(renderer, kwargs) {
       .append('text')
       .attr('class', 'legendCount')
       //.attr('fill', '#333')
-      .text((l)=>l);
+      .text("100%");
 
     this.legendCount = this.svg.selectAll('.legendCount');
 
@@ -654,26 +654,62 @@ function TeaserOverlay(renderer, kwargs) {
       .attr('value', 'apply')
       .attr('style', 'width: 80px; line-height: 15px; font-size: 10px;')
       .on('click', ()=>{
-        const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-        var percentagesOffset= [4, -1, 0, 2, -9, 11, 7, 3, -8, -1];
-        var percentages = document.getElementsByClassName('legendCount');
-        var min = parseInt(document.getElementById('minConfidence').value);
-        var max = parseInt(document.getElementById('maxConfidence').value);
-        var difference = max-min;
-        difference = clamp(difference, 0, 100);
-        for (var i = 0; i < percentages.length; i++) {
-          if (difference == 0 || difference == 100) {
-            percentages[i].innerHTML = clamp(difference , 0, 100) + '%';
-          } else {
-            percentages[i].innerHTML = clamp(difference + percentagesOffset[i], 0, 100) + '%';
-          }
-        }
+
+        this.applyFilter();
+        
       });;
 
     this.confidenceFilter = this.svg.select('.confidenceFilter');
       
   };
 
+  this.applyFilter = function(tempClasses=null) {
+    // update percentages (mockup at the moment)
+    const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+    var percentagesOffset= [4, -1, 0, 2, -9, 11, 7, 3, -8, -1];
+    var percentages = document.getElementsByClassName('legendCount');
+    var min = parseFloat(document.getElementById('minConfidence').value);
+    var max = parseFloat(document.getElementById('maxConfidence').value);
+    var difference = max-min;
+    difference = clamp(difference, 0, 100);
+    for (var i = 0; i < percentages.length; i++) {
+      if (difference == 0 || difference == 100) {
+        percentages[i].innerHTML = clamp(difference , 0, 100) + '%';
+      } else {
+        percentages[i].innerHTML = clamp(difference + percentagesOffset[i], 0, 100) + '%';
+      }
+      
+    }
+
+
+    for (let i=0; i<renderer.dataObj.npoint; i++) {
+      var digit = parseInt(renderer.dataObj.labels[i]); //already an int but parsing to make sure
+      // confidence is initially between 0 and 1
+      var confidenceAsPercent = renderer.dataObj.dataTensor[renderer.epochIndex][i][digit] * 100;
+      // if the digit is not already filtered out
+      // messy ass code. checks if the digit is either filters out by clicking a class or hovering over a class
+      if (tempClasses != null){
+        console.log("using tempclasses");
+        console.log(min);
+        console.log(max);
+        
+        if (tempClasses.has(digit) 
+        && confidenceAsPercent >= min 
+        && confidenceAsPercent <= max) {
+          console.log("asdf");
+          console.log(confidenceAsPercent);
+          renderer.dataObj.alphas[i] = 255;
+        }
+      } else if ((this.selectedClasses.has(digit) || this.selectedClasses.size == 0)
+        && confidenceAsPercent >= min 
+        && confidenceAsPercent <= max){
+        renderer.dataObj.alphas[i] = 255;
+      } else {
+        renderer.dataObj.alphas[i] = 0;
+      }
+      //renderer.dataObj.dataTensor[renderer.epochIndex][i];
+    }
+  };
 
   this.onSelectLegend = function(labelClasses) {
     if (typeof(labelClasses) === 'number') {
@@ -724,5 +760,7 @@ function TeaserOverlay(renderer, kwargs) {
           return labelClasses.has(i) ? 1.0:0.1;
         }
       });
+  
+    this.applyFilter();
   };
 }
