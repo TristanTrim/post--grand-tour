@@ -16,7 +16,7 @@ function TeaserRenderer(gl, program, kwargs) {
   this.colorFactor = utils.COLOR_FACTOR;
   this.isFullScreen = false;
   if (this.shouldPlayGrandTour === undefined){
-    this.shouldPlayGrandTour = true;
+    this.shouldPlayGrandTour = false;
   }
   if (!this.hasOwnProperty('shouldAutoNextEpoch')){
     this.shouldAutoNextEpoch = true;

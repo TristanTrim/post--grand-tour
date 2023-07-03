@@ -118,7 +118,7 @@ function TeaserOverlay(renderer, kwargs) {
 
   this.grandtourButton.append('span')
     .attr('class', 'tooltipText')
-    .text('Pause Grand Tour');
+    .text('Play Grand Tour');
 
   this.grandtourButton
     .on('click', function() {
