@@ -155,7 +155,9 @@ utils.updateScale_center = function(points, canvas, sx, sy, sz,
   marginRight=undefined,
   marginBottom=undefined, 
   marginLeft=undefined,
-  marginTop=undefined
+  marginTop=undefined,
+  yOffset=0,
+  xOffset=0
   ){
 
   if (marginTop === undefined){
@@ -177,10 +179,10 @@ utils.updateScale_center = function(points, canvas, sx, sy, sz,
   let xDataRange = 2*vmax[0];
   let yDataRange = 2*vmax[1];
 
-  let yMiddle = ((canvas.clientHeight-marginBottom) + marginTop ) /2;
+  let yMiddle = ((canvas.clientHeight-marginBottom) + marginTop ) /2 + yOffset;
   let yRadius0 = ((canvas.clientHeight-marginBottom) - marginTop ) /2;
 
-  let xMiddle = ((canvas.clientWidth-marginRight) + marginLeft)/2;
+  let xMiddle = ((canvas.clientWidth-marginRight) + marginLeft)/2 + xOffset;
   let xRadius0 = ((canvas.clientWidth-marginRight) - marginLeft)/2;
 
   let xRadius = Math.min(xRadius0, yRadius0 / yDataRange * xDataRange);

@@ -107,26 +107,35 @@
   <canvas id='nngt-single-epoch-1' class='grandtour'></canvas>
   <script src='js/se1.js'></script>
   <script>   
-    
+
+    // arrow keys to pan
+    document.onkeydown = (e) => {
+      if (e.keyCode === 38) { //up
+        se1.xOffset -= 10;
+      } else if (e.keyCode === 40) { //down
+        se1.xOffset += 10;
+      } else if (e.keyCode === 37) { //left
+        se1.yOffset -= 10;
+      } else if (e.keyCode === 39) { //right
+        se1.yOffset += 10;
+      }
+    };
 
     //Zoom in and out via scrool wheel
     window.addEventListener("wheel", event => {
       const delta = Math.sign(event.deltaY);
       if (delta < 0) {
+        
         se1.scaleFactor += 0.1; //up
         if (se1.scaleFactor > 5) { //max zoom
           se1.scaleFactor = 5;
         }
-        //se1.setScaleFactor(se1.scaleFactor + 0.1)
       } else if (delta > 0) {
         se1.scaleFactor -= 0.1; //down
         if (se1.scaleFactor < 0.2) { //min zoom
           se1.scaleFactor = 0.2;
         }
-        //se1.setScaleFactor(se1.scaleFactor - 0.1);
       }
-      
-      console.log(se1.dataObj);
     });
     
 

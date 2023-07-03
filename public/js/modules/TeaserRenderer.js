@@ -36,6 +36,9 @@ function TeaserRenderer(gl, program, kwargs) {
   this.sy = this.sy_center;
   this.scaleFactor = 1.0;
 
+  this.xOffset = 0;
+  this.yOffset = 0;
+
   this.setScaleFactor = function(s){
     this.scaleFactor = s;
   }
@@ -341,7 +344,11 @@ function TeaserRenderer(gl, program, kwargs) {
       this.sx_center, this.sy_center, this.sz_center, 
       this.scaleFactor,
       utils.legendLeft[this.overlay.getDataset()]+15,
-      65
+      65,
+      undefined,
+      undefined,
+      this.xOffset,
+      this.yOffset
     );
     
     utils.updateScale_span(points, gl.canvas,
