@@ -107,6 +107,44 @@
   <canvas id='nngt-single-epoch-1' class='grandtour'></canvas>
   <script src='js/se1.js'></script>
   <script>   
+    var panning = false;
+    var oldMouseX = 0;
+    var oldMouseY = 0;
+    document.onmousedown = handleMouseDown;
+    document.onmouseup = handleMouseUp;
+    document.onmousemove = handleMouseMove;
+    
+    function handleMouseDown(e) {
+      var eventDoc, doc, body;
+
+      e = e || window.event;
+
+      panning = true;
+      oldMouseX = e.pageX;
+      oldMouseY = e.pageY;
+    }
+
+    function handleMouseUp(e) {
+      var eventDoc, doc, body;
+
+      e = e || window.event;
+
+      panning = false;
+    }
+
+    function handleMouseMove(e) {
+      var eventDoc, doc, body;
+
+      e = e || window.event;
+
+      console.log(e.pageX-oldMouseX);
+      if (panning) {
+        se1.xOffset += e.pageY-oldMouseY;
+        se1.yOffset += e.pageX-oldMouseX;
+      }
+      oldMouseX = e.pageX;
+      oldMouseY = e.pageY;
+    }
 
     // arrow keys to pan
     document.onkeydown = (e) => {
