@@ -117,10 +117,18 @@
     
     function handleMouseDown(e) {
       e = e || window.event;
-      console.log(e.pageX);
-      console.log(e.pageY);
+      //console.log(e.pageX);
+      //console.log(e.pageY);
+      var graphMid = window.innerWidth/2;
+      graphMid -= 48;
+      var horOffset = 305;
+      //var verOffset = 183;
+      console.log(graphMid + horOffset);
 
-      if (e.pageX > 330 && e.pageX < 940 && e.pageY > 65 && e.pageY < 430) { // magic numbers roughly correlating to the graphs location
+      if (e.pageX > graphMid - horOffset 
+          && e.pageX < graphMid + horOffset  
+          && e.pageY > 65 
+          && e.pageY < 430) { // magic numbers roughly correlating to the graphs location
         panning = true;
       }
       oldMouseX = e.pageX;
