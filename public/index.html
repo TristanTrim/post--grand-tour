@@ -110,34 +110,32 @@
     var panning = false;
     var oldMouseX = 0;
     var oldMouseY = 0;
+
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
     
     function handleMouseDown(e) {
-      var eventDoc, doc, body;
-
       e = e || window.event;
+      console.log(e.pageX);
+      console.log(e.pageY);
 
-      panning = true;
+      if (e.pageX > 330 && e.pageX < 940 && e.pageY > 65 && e.pageY < 430) { // magic numbers roughly correlating to the graphs location
+        panning = true;
+      }
       oldMouseX = e.pageX;
       oldMouseY = e.pageY;
     }
 
     function handleMouseUp(e) {
-      var eventDoc, doc, body;
-
       e = e || window.event;
 
       panning = false;
     }
 
     function handleMouseMove(e) {
-      var eventDoc, doc, body;
-
       e = e || window.event;
 
-      console.log(e.pageX-oldMouseX);
       if (panning) {
         se1.xOffset += e.pageY-oldMouseY;
         se1.yOffset += e.pageX-oldMouseX;
