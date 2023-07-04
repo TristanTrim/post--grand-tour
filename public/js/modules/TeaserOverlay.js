@@ -626,7 +626,7 @@ function TeaserOverlay(renderer, kwargs) {
       .attr('max', '100')
       .attr('size', '3')
       .attr('value', '0')
-      .attr('style', 'width: 35px; height: 20px; font-size: 10px; -webkit-appearance: none; -moz-appearance: textfield;'); //would love to put this in style.css but cant get it to work
+      .attr('style', 'width: 35px; height: 20px; font-size: 10px; margin: 0; -webkit-appearance: none; -moz-appearance: textfield;'); //would love to put this in style.css but cant get it to work
 
     this.confidenceFilter
       .append('xhtml:text')
