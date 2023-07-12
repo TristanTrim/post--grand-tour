@@ -703,9 +703,11 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
 
   //points
     //
-  let orig = sideLength;
+  //let orig = sideLength;
+  let orig = 10;
 
-  let bigger = 5*sideLength;
+  let bigger = 50;
+  //let bigger = 5*sideLength;
   //let bigger = 
   //      Math.abs(Math.sin(Date.now()/1000)*5)
   //      *sideLength;
