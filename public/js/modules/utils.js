@@ -705,10 +705,17 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
     //
   let orig = sideLength;
 
-  //let bigger = 5*sideLength
-  let bigger = 
-        Math.abs(Math.sin(Date.now()/1000)*5)
-        *sideLength;
+  let bigger = 5*sideLength;
+  //let bigger = 
+  //      Math.abs(Math.sin(Date.now()/1000)*5)
+  //      *sideLength;
+
+  let clicked_on_data = false;
+  let minDist = 10000;
+  let closestPointIndex = null;
+  if(requestDataPointClick){
+    clicked_on_data = true;
+  }
 
   for (let i=0; i<npoint; i++) {
     let x = points[i][0];
@@ -723,7 +730,17 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
       ll = [x-sideLength/2, y-sideLength/2, z]; // lower left
       lr = [x+sideLength/2, y-sideLength/2, z]; // lower right
     }else{
-        if( npoint-i < 7 ){
+        if(clicked_on_data){
+            let dist = math.abs(requestDataPointX-x)
+                       +math.abs(requestDataPointY-y);
+            if( dist < minDist ){ 
+               minDist = dist;
+               closestPointIndex = i;
+            }
+                
+        }
+        if(selectedPointsArray[i]){
+            // npoint-i < 7 ){
             //i%100 <1){
           sideLength = bigger;
       }else{
@@ -736,6 +753,11 @@ utils.point2rect = function(points, npoint, sideLength, yUp=false) {
       lr = [x+sideLength/2, y+sideLength/2, z]; // lower right
     }
     res.push(ur, ul, ll, ur, ll, lr);
+  }
+  if(clicked_on_data){
+    requestDataPointClick = false;
+    selectedPointsArray[closestPointIndex] 
+          = ! selectedPointsArray[closestPointIndex] 
   }
 
   //axis

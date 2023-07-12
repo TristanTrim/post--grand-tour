@@ -111,6 +111,14 @@
     var oldMouseX = 0;
     var oldMouseY = 0;
 
+    var mouseDownX = mouseDownY = 0;
+    var requestDataPointClick = false;
+    var requestDataPointX = 0;
+    var requestDataPointY = 0;
+   // hard coding the npoint is bad! but whatever.
+    var selectedPointsArray
+           = new Array(1000).fill(false);
+
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
@@ -131,11 +139,25 @@
           && e.pageY < 430) { // magic numbers roughly correlating to the graphs location
         panning = true;
       }
-      oldMouseX = e.pageX;
-      oldMouseY = e.pageY;
+      mouseDownX = oldMouseX = e.pageX;
+      mouseDownY = oldMouseY = e.pageY;
     }
 
     function handleMouseUp(e) {
+      if(
+           e.pageX - mouseDownX < 2
+         &&
+           e.pageY - mouseDownY < 2
+         ){
+        overlayPos = document.getElementsByClassName("overlay")[0].getBoundingClientRect();
+        console.log(
+            mouseDownX - overlayPos.x,
+            mouseDownY - overlayPos.y,
+            );
+            requestDataPointX = mouseDownX - overlayPos.x;
+            requestDataPointY = mouseDownY - overlayPos.y;
+        requestDataPointClick = true;
+      }
       e = e || window.event;
 
       panning = false;
