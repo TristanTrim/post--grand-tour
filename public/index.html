@@ -187,22 +187,25 @@
       }
     };
 
-    //Zoom in and out via scrool wheel
+    //Zoom in and out via scrool wheel  <- it's cool to scrool!
     window.addEventListener("wheel", event => {
+      // scroll wheel no longer scrols pag
+      event.preventDefault();
       const delta = Math.sign(event.deltaY);
       if (delta < 0) {
         
-        se1.scaleFactor += 0.1; //up
+        se1.scaleFactor *= 1.1; //up
         if (se1.scaleFactor > 5) { //max zoom
           se1.scaleFactor = 5;
         }
       } else if (delta > 0) {
-        se1.scaleFactor -= 0.1; //down
+        se1.scaleFactor /= 1.1; //down
         if (se1.scaleFactor < 0.2) { //min zoom
           se1.scaleFactor = 0.2;
         }
       }
-    });
+    }, {passive:false} // allow call to preventDefault cause there aint no scrolling on this page!
+    );
     
 
     
