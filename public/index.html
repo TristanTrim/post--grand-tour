@@ -131,7 +131,7 @@
       graphMid -= 48;
       var horOffset = 305;
       //var verOffset = 183;
-      console.log(graphMid + horOffset);
+      //console.log(graphMid + horOffset);
 
       if (e.pageX > graphMid - horOffset 
           && e.pageX < graphMid + horOffset  
@@ -150,10 +150,10 @@
            e.pageY - mouseDownY < 2
          ){
         overlayPos = document.getElementsByClassName("overlay")[0].getBoundingClientRect();
-        console.log(
-            mouseDownX - overlayPos.x,
-            mouseDownY - overlayPos.y,
-            );
+       // console.log(
+       //     mouseDownX - overlayPos.x,
+       //     mouseDownY - overlayPos.y,
+       //     );
             requestDataPointX = mouseDownX - overlayPos.x;
             requestDataPointY = mouseDownY - overlayPos.y;
         requestDataPointClick = true;
@@ -187,26 +187,84 @@
       }
     };
 
+
     //Zoom in and out via scrool wheel  <- it's cool to scrool!
+
     window.addEventListener("wheel", event => {
       // scroll wheel no longer scrols pag
       event.preventDefault();
       const delta = Math.sign(event.deltaY);
+
+      let zoomTickFac = 1.1;
+
+      // offset plot while zooming
+      overlayPos = document.getElementsByClassName("overlay")[0].getBoundingClientRect();
+      overlayMidX = overlayPos.x + (overlayPos.width/2);
+      overlayMidY = overlayPos.y + (overlayPos.height/2);
+      mouseInOverlayX = event.pageX - overlayMidX +40;
+      mouseInOverlayY = event.pageY - overlayMidY +20;
+      
+      oldXDelta = mouseInOverlayX - se1.yOffset; // x y switcherooo!
+      oldYDelta = mouseInOverlayY - se1.xOffset;
+
       if (delta < 0) {
-        
-        se1.scaleFactor *= 1.1; //up
-        if (se1.scaleFactor > 5) { //max zoom
-          se1.scaleFactor = 5;
-        }
+
+	      if (true){//se1.scaleFactor < 1000) { // max zoom (only go a little beyond it)
+		// new zoom level
+		se1.scaleFactor *= zoomTickFac; //up
+
+		// new zoom offset
+		newXDelta = zoomTickFac * oldXDelta;
+		newYDelta = zoomTickFac * oldYDelta;
+
+		se1.yOffset = mouseInOverlayX - newXDelta ;
+		se1.xOffset = mouseInOverlayY - newYDelta ;
+	}
+
       } else if (delta > 0) {
-        se1.scaleFactor /= 1.1; //down
-        if (se1.scaleFactor < 0.2) { //min zoom
-          se1.scaleFactor = 0.2;
+        if (se1.scaleFactor > 0.2) { //min zoom (only go a little less )
+		// new zoom level
+		se1.scaleFactor /= zoomTickFac; //down
+
+		// new zoom offset
+		newXDelta = oldXDelta / zoomTickFac;
+		newYDelta = oldYDelta / zoomTickFac;
+
+		se1.yOffset = mouseInOverlayX - newXDelta ;
+		se1.xOffset = mouseInOverlayY - newYDelta ;
         }
       }
+
+    console.log(se1.scaleFactor);
+
     }, {passive:false} // allow call to preventDefault cause there aint no scrolling on this page!
     );
     
+
+
+    //  lets get wiggly!!!!
+
+stillWiggling = false;
+wiggleAxisIndex = 8;
+
+function wiggle(){
+	  dx = Math.sin(Date.now()/100)
+	  dy = Math.cos(3.14/4 + Date.now()/100)
+
+	matrix = window.se1.overlay.renderer.gt.getMatrix();
+        
+         matrix[wiggleAxisIndex][0] += .01*dx;
+         matrix[wiggleAxisIndex][1] += .01*dy;
+
+        
+        matrix = utils.orthogonalize(matrix, wiggleAxisIndex);
+
+        window.se1.overlay.renderer.gt.setMatrix(matrix);
+
+        window.se1.overlay.redrawAxis();
+
+        if(stillWiggling) setTimeout(wiggle, 50);
+}
 
     
     </script>
@@ -216,6 +274,8 @@
   <a onclick="utils.setDataset('mnist');">MNIST</a>, 
   <a onclick="utils.setDataset('fashion-mnist');">fashion-MNIST</a> or 
   <a onclick="utils.setDataset('cifar10');">CIFAR-10</a> dataset.
+  <br>
+<a onclick="stillWiggling = !stillWiggling; wiggle();">Wiggle?</a>
 </figcaption>
 
 

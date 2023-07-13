@@ -434,6 +434,9 @@ function TeaserOverlay(renderer, kwargs) {
         let y = renderer.sy.invert(d3.event.y);
         let matrix = renderer.gt.getMatrix();
 
+//	console.log(matrix[i][0], matrix[i][1]); //Tristan: this is a neat object to explore.
+	      //					Used in the wiggle functionality.
+
         matrix[i][0] += dx;
         matrix[i][1] += dy;
         // matrix[i][0] = x;
@@ -443,6 +446,7 @@ function TeaserOverlay(renderer, kwargs) {
         renderer.gt.setMatrix(matrix);
         
         this.redrawAxis();
+	//   console.log(this);
         // renderer.render(0);
       })
       .on('end', function() {
