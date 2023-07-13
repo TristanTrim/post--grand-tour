@@ -89,7 +89,19 @@
 
 <body>
 
-
+  <h1 style="color: white; text-align: center;">
+    <b>
+      Multi-dimensional neuralnet visualizer
+    </b>
+  </h1>
+  
+  <hr style="border-color: white; margin: 10px 0px 0px 0px;">
+  <div class = "SubPages"></div>	
+    <button style="background-color: #222; color: white; margin:0px;  border: 3px solid white;">Data visualizer</button>
+    <button onclick="window.location.href='DataSetMaker.html'" style="background-color: #222; color: white; border: 1px solid white;">Data set creator</button>
+  </div>
+  <hr style="border-color: white; margin: 0px 0px 0px 0px;">
+  
 
 <script>
   let c = utils.CLEAR_COLOR.map(d=>d*255);
@@ -103,7 +115,7 @@
 
 <i id="nngt-single-epoch-a"></i>
 
-<d-figure class='nngt-single-epoch-1' style="">
+<d-figure class='nngt-single-epoch-1' style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
   <canvas id='nngt-single-epoch-1' class='grandtour'></canvas>
   <script src='js/se1.js'></script>
   <script>   

@@ -1,0 +1,190 @@
+
+<!doctype html>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://distill.pub/template.v2.js"></script>
+<!-- <script src="js/_distill/template.v2.js"></script> -->
+
+  <!-- bootstrap -->
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+<script src="js/lib/webgl_utils/webgl-utils.js"></script>
+<script src="js/lib/webgl_utils/initShaders2.js"></script>
+<script src="js/lib/webgl_utils/MV.js"></script>
+<script src="js/lib/numeric-1.2.6.js"></script>
+<script src="js/lib/math.js"></script>
+<script src="js/lib/lz-string.js"></script>
+<script src="js/lib/d3/v5/d3.js"></script>
+
+<script src="js/modules/utils.js"></script>
+<script src="js/modules/constants.js"></script>
+<script src="js/modules/GrandTour.js"></script>
+
+<script src="js/modules/TeaserRenderer.js"></script>
+<script src="js/modules/TeaserOverlay.js"></script>
+
+<script src="js/modules/SoftmaxComparisonRenderer.js"></script>
+<script src="js/modules/SoftmaxComparisonOverlay.js"></script>
+
+<!-- <script src="js/modules/ConfusionMatrixRenderer.js"></script> -->
+
+<script src="js/modules/TesseractRenderer.js"></script>
+<script src="js/modules/TesseractOverlay.js"></script>
+
+<!-- <script src="js/modules/NeuralNetRenderer.js"></script> -->
+<script src="js/modules/NeuralNetOverlay.js"></script>
+
+<script src="js/modules/SmallMultipleRenderer.js"></script>
+<script src="js/modules/SmallMultipleOverlay.js"></script>
+<script src="js/sm0.js"></script>
+
+<script src="js/modules/LayerTransitionRenderer.js"></script>
+<script src="js/modules/LayerTransitionOverlay.js"></script>
+
+<script src="js/modules/LossHistoryRenderer.js"></script>
+
+
+<script>
+  utils.cacheAll(constants.preloadUrls);
+
+  //Note: safari does not support window.requestIdleCallback
+  if(window.requestIdleCallback){ 
+    for (let url of constants.layerTransitionUrls['fashion-mnist']){
+      window.requestIdleCallback(()=>{utils.cacheAll([url,] )});
+    }
+    for (let url of constants.adversarialUrls){
+      window.requestIdleCallback(()=>{utils.cacheAll([url,] )});
+    }
+  }
+  
+  
+  // window.requestIdleCallback(()=>{utils.cacheAll(constants.adversarialUrls)});
+  // window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['fashion-mnist'])});
+  // window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['mnist'])});
+  // window.requestIdleCallback(()=>{utils.cacheAll(constants.layerTransitionUrls['cifar10'])});
+  // 
+
+  let allViews = [];// teaser, nn2, sm0, nngt, tesseract, se, dm1, nngt2, lt2, lta];
+</script>
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<link rel="stylesheet" media="screen and (max-width: 1024px)" href="css/small-screen.css">
+
+<style>
+.nav{
+  display: block;
+}
+</style>
+
+<title>Dimension Bros</title>
+
+<style>
+  .sidebar {
+    min-width: 200px;
+    min-height: 500px;
+    padding: 10px;
+    float: left;
+    color: white;
+  }
+</style>
+
+<style>
+.button-list {
+  list-style-type: none;
+  padding: 0;
+}
+</style>
+
+<script>
+   let slider1Value = 50;
+  let slider2Value = .02;
+
+  function updateTextField(value, textFieldId) {
+    document.getElementById(textFieldId).value = value;
+    
+    if (textFieldId === 'textField1') {
+      slider1Value = value;
+    } else if (textFieldId === 'textField2') {
+      slider2Value = value;
+    }
+  }
+</script>
+
+</head>
+
+<body>
+
+<h1 style="color: white; text-align: center;">
+  <b>
+    Multi-dimensional neuralnet visualizer
+  </b>
+</h1>
+
+<hr style="border-color: white; margin: 10px 0px 0px 0px;">
+<div class = "SubPages"></div>	
+	<button onclick="window.location.href='index.html'" style="background-color: #222; color: white; border: 1px solid white;">Data visualizer</button>
+  <button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Data set creator</button>
+</div>
+<hr style="border-color: white; margin: 0px 0px 0px 0px;">
+
+<div style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
+  <b style="background-color: #222; color: white;">
+    <button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Start Training</button>
+    Awaiting start(this page doesnt work and is just for show)
+  </b margin:0px ;>
+</div>
+
+<div class="sidebar" style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
+  Select images
+  <ul class="button-list">
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Select Folder</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Select Images</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Select from Url</button></li>
+</ul>
+</div>
+
+<div class="sidebar" style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
+  detection model
+  <ul class="button-list">
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Model A.SafeTensor</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Model B.Cptk</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Model C.SafeTensor</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Model D.SafeTensor</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">Model E.PT</button></li>
+</ul>
+</div>
+
+<div class="sidebar" style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
+  File type
+  <ul class="button-list">
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">.Cptk</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">.SafeTensor</button></li>
+  <li><button style="background-color: #222; color: white; margin:0px ; border: 3px solid white;">.PT</button></li>
+</ul>
+</div>
+
+<div class="sidebar" style="border: 10px solid rgb(46, 46, 46); padding: 10px;">
+  <div>
+  <b>Training Epochs</b>
+  </div>
+  <div>
+    <input type="range" id="slider1" min="1" max="100" value="50" oninput="updateTextField(this.value, 'textField1')">
+    <input type="text" id="textField1" value="50" style="width: 50px;">
+  </div>
+  <div>
+  <b>Training Rate</b>
+  </div>
+  <div>
+    <input type="range" id="slider2" min="0" max="1" value=".02" step="0.001" oninput="updateTextField(this.value, 'textField2')">
+    <input type="text" id="textField2" value=".02" style="width: 50px;">
+  </div>
+</div>
+
+</body>
