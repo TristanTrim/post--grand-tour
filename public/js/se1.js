@@ -39,7 +39,10 @@ seFigure1.addEventListener("ready", function() {
       return d.value == dataset;
     });
 
-  });
+    console.log("oh y'kno");
+    se1.overlay.initAxisHandle();
+
+  }); // end addDatasetListener
   
   window.addEventListener('resize', ()=>{
     se1.overlay.resize();

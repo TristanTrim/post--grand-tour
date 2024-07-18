@@ -251,13 +251,55 @@ function TeaserOverlay(renderer, kwargs) {
     .append('select')
     .on('change', function() {
       let dataset = d3.select(this).property('value');
-      utils.setDataset(dataset);
+      if (dataset == "__load_file__"){
+
+  // ----- TODO: move this to utils --------------
+
+        var input = $(document.createElement("input"));
+
+        input.attr("type", "file");
+        input.attr("multiple", true);
+
+        input.on('change', function(){
+              console.log(input);
+              console.log(input[0].files);
+
+              var fl1 = input[0].files[0];
+              fl1.arrayBuffer().then((f)=>{
+                    console.log(f);
+                    // TODO: not this
+                    se1.overlay.renderer.initData(f, fl1.name);
+                    });
+
+              var fl2 = input[0].files[1];
+              if (fl2){
+                fl2.arrayBuffer().then((f)=>{
+                      console.log(f);
+                      // TODO: not this
+                      se1.overlay.renderer.initData(f, fl2.name);
+                      });
+              }
+
+          });
+
+        // add onchange handler if you wish to get the file :)
+        input.trigger("click"); // opening dialog
+
+ //--------------------------------------------------
+
+      }else{
+        utils.setDataset(dataset);
+      }
     });
   this.datasetSelection.selectAll('option')
     .data([
       {value:'mnist',text:'MNIST'}, 
       {value:'fashion-mnist',text:'fashion-MNIST'},
-      {value:'cifar10',text:'CIFAR-10'}])
+      {value:'cifar10',text:'CIFAR-10'},
+      {value:'test_img',text:'test-img'},
+      {value:'b1_conv',text:'b1_conv'},
+      {value:'__load_file__',text:'-- load file --'},
+    ])
     .enter()
     .append('option')
     .text(d=>d.text)
@@ -373,7 +415,7 @@ function TeaserOverlay(renderer, kwargs) {
       this.banner.remove();
     }
     
-  };
+  }; // end repositionAll
 
 
 
@@ -403,6 +445,8 @@ function TeaserOverlay(renderer, kwargs) {
     let ndim = renderer.dataObj.ndim || 10;
     let coordinates = math.zeros(ndim, ndim)._data;
 
+    console.log("annnnnddddd",ndim);
+
     svg.selectAll('.anchor')
       .data(coordinates)
       .enter()
@@ -414,7 +458,8 @@ function TeaserOverlay(renderer, kwargs) {
         .attr('cx', (d)=>renderer.sx(d[0]))
         .attr('cy', (d)=>renderer.sy(d[1]))
         .attr('r', this.archorRadius)
-        .attr('fill', (_, i)=>d3.rgb(...utils.baseColors[i]).darker())
+        .attr('fill', (_, i)=>d3.rgb(...utils.baseColors
+                [i % utils.baseColors.length]).darker())
         .attr('stroke', (_, i)=>'white')
         .style('cursor', 'pointer');
 
@@ -430,6 +475,11 @@ function TeaserOverlay(renderer, kwargs) {
 
         let dx = renderer.sx.invert(d3.event.dx)-renderer.sx.invert(0);
         let dy = renderer.sy.invert(d3.event.dy)-renderer.sy.invert(0);
+
+        let sf = se1.scaleFactor;
+        dx = sf*dx;
+        dy = sf*dy;
+
         let x = renderer.sx.invert(d3.event.x);
         let y = renderer.sy.invert(d3.event.y);
         let matrix = renderer.gt.getMatrix();
@@ -472,11 +522,16 @@ function TeaserOverlay(renderer, kwargs) {
     let svg = this.svg;
 
     if(renderer.gt !== undefined){
-      let handlePos = renderer.gt.project(math.eye(renderer.dataObj.ndim)._data);
+      let handlePos = renderer.gt.project(
+            math.multiply(
+              math.eye(renderer.dataObj.ndim), 
+              //1/math.pow(se1.scaleFactor,1.1)
+              1/se1.scaleFactor
+              )._data);
 
       svg.selectAll('.anchor')
-        .attr('cx', (_, i) => renderer.sx(handlePos[i][0]))
-        .attr('cy', (_, i) => renderer.sy(handlePos[i][1]));
+        .attr('cx', (_, i) => handlePos[i]===undefined ? undefined : renderer.sx(handlePos[i][0]) )
+        .attr('cy', (_, i) => handlePos[i]===undefined ? undefined : renderer.sy(handlePos[i][1]) );
     }
     
 

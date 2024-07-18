@@ -33,13 +33,17 @@ utils.legendLeft = {
   'mnist':95,
   'fashion-mnist':95,
   'cifar10':95,
-  'mnist-adversarial': 95
+  'mnist-adversarial': 95,
+  'test_img':95,
+  'b1_conv':95
 };
 utils.legendRight = {
   'mnist':2,
   'fashion-mnist':2,
   'cifar10':2,
-  'mnist-adversarial': 2
+  'mnist-adversarial': 2,
+  'test_img':2,
+  'b1_conv':2
 };
 
 //legend of small multiple
@@ -47,13 +51,13 @@ utils.smLegendLeft = {
   'mnist':85,
   'fashion-mnist':85,
   'cifar10':85,
-  'mnist-adversarial': 85
+  'mnist-adversarial': 85,
 };
 utils.smLegendRight = {
   'mnist':2,
   'fashion-mnist':2,
   'cifar10':2,
-  'mnist-adversarial': 2
+  'mnist-adversarial': 2,
 };
 
 utils.legendTitle = {
@@ -61,6 +65,8 @@ utils.legendTitle = {
   'fashion-mnist': undefined,
   'cifar10': undefined,
   'mnist-adversarial': 'Digit',
+  'test_img':"it's just a joke",
+  'b1_conv':"b1 conv layer",
 };
 
 //for softmax grandtour
@@ -362,6 +368,10 @@ utils.getLabelNames = function(adversarial=false, dataset=undefined) {
   } else if (dataset == 'cifar10') {
     res = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer',
             'Dog', 'Frog', 'Horse', 'Ship', 'Truck'];
+  } else if (dataset == 'test_img'
+        || dataset == 'b1_conv'
+        ) {
+    res = ['pix'];
   } else {
     throw new Error('Unrecognized dataset ' + dataset);
   }
@@ -604,9 +614,26 @@ utils.resizeCanvas = function(canvas) {
 //   [106,61,154],  [255,255,153], [177,89,40]
 // ];
 
-utils.baseColorsHex = d3.schemeCategory10;
-utils.baseColorsHex.push('#444444');
-utils.baseColorsHex.push('#444444');
+
+//utils.baseColorsHex = d3.schemeCategory10;
+//utils.baseColorsHex.push('#444444');
+//utils.baseColorsHex.push('#444444');
+
+
+utils.baseColorsHex = 
+        ["#ff55af", "#00e237", "#0161f5", "#72d400", "#026beb",
+        "#79c000", "#ff3cb9", "#00be41", "#ba008b", "#00de74",
+        "#f30039", "#38df9f", "#da0014", "#00b175", "#ff3635",
+        "#018b18", "#bf005e", "#82dc51", "#0172d5", "#c0b700",
+        "#859dff", "#dec72d", "#da66b3", "#5a8e00", "#df003e",
+        "#007b2a", "#ff3f21", "#2d803f", "#c20041", "#b3d258",
+        "#a5024d", "#9cab00", "#9b356a", "#82c375", "#b5001e",
+        "#467e32", "#ff6695", "#ab9d00", "#972945", "#ecc13d",
+        "#fc85a0", "#5d6800", "#ff6426", "#8b993f", "#bb3100",
+        "#898300", "#ff6f5c", "#dca300", "#9c2627", "#feba41",
+        "#d5656a", "#fdb95a", "#92330a", "#b0933d", "#f67200",
+        "#d8a456", "#cc6200", "#ff8f79", "#aa7300", "#cc6951",
+        "#ff9d49", "#a35200", "#e99261"] ;
 
 function hexToRgb(hex) {
   let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

@@ -44,15 +44,45 @@ function TeaserRenderer(gl, program, kwargs) {
   }
 
   this.initData = function(buffer, url) {
+    console.log(url);
+    console.log(buffer);
+
     if (url.includes('labels')) {
+      console.log("it's labels! : ) ");
+
       this.dataObj.labels = Array.from(new Int8Array(buffer));
       this.shouldRecalculateColorRect = true;
+
     } else {
       let arr = new Float32Array(buffer);
-      let nepoch = 100;
-      let npoint = 1000;
+      let nepoch; let npoint;
+
+      format_match = url.match(/._([0-9]*)af_([0-9]*)dp_([0-9]*)dim_\./);
+      if (format_match){
+        let nepoch = parseInt(format_match[1]);
+        let npoint = parseInt(format_match[2]);
+        // TODO: make sure dim matches? probs not important.
+        let arr = new Float32Array(buffer);
+
+      } else if (url.includes('test_img')
+            || url.includes('b1_conv')
+            ){
+          nepoch = 1;
+          npoint = 4096;
+      } else {
+          nepoch = 100;
+          npoint = 1000;
+      }
+
+      if (this.epochIndex > nepoch-1){
+        this.setEpochIndex(nepoch-1);
+      }
+
       let ndim = arr.length/(nepoch*npoint);
+
+
       this.dataObj.dataTensor = utils.reshape(arr, [nepoch, npoint, ndim]);
+
     }
 
     if (this.dataObj.dataTensor !== undefined 
@@ -96,7 +126,7 @@ function TeaserRenderer(gl, program, kwargs) {
       }
 
 
-  };
+  }; // end // initData
 
 
   this.setFullScreen = function(shouldSet) {
@@ -381,8 +411,8 @@ function TeaserRenderer(gl, program, kwargs) {
 
     dataObj.points = points;
 
-    let colors = labels.map((d)=>utils.baseColors[d]);
-    let bgColors = labels.map((d)=>utils.bgColors[d]);
+    let colors = labels.map((d)=>utils.baseColors[d%utils.baseColors.length]);
+    let bgColors = labels.map((d)=>utils.bgColors[d%utils.bgColors.length]);
 
     colors = colors.concat(utils.createAxisColors(dataObj.ndim));
     colors = colors.map((c, i)=>[c[0], c[1], c[2], dataObj.alphas[i]]);
