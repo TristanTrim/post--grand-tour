@@ -295,7 +295,7 @@ function LayerTransitionOverlay(renderer, kwargs) {
     .attr('fill-opacity', 0.1)
     .attr('stroke', 'orange')
     .call(
-      d3.drag()
+      d3.drag() // DRAG
       .on('start', ()=>{
         this.brush.hide();
         this.pcaIteration = 0;
@@ -303,7 +303,7 @@ function LayerTransitionOverlay(renderer, kwargs) {
         this.updateScale();
 
       })
-      .on('drag', ()=>{
+      .on('drag', ()=>{ // ON DRAG
 
         // direct manipulation
         let [dx,dy] = [d3.event.dx, d3.event.dy];
@@ -399,7 +399,7 @@ function LayerTransitionOverlay(renderer, kwargs) {
             //// method 1
             //// planar rotation
             centroid = numeric.dot([centroid], this.renderer.gt.matrix)[0];
-            let centroid2 = centroid.slice();
+            let centroid2 = centroid.slice(); // shallow copy
             centroid2[0] += norm*dx;
             centroid2[1] += norm*dy;
             centroid = numeric.div(centroid, numeric.norm2(centroid));
@@ -548,15 +548,17 @@ function LayerTransitionOverlay(renderer, kwargs) {
 
 
         }
-      })
+      }) // end ON DRAG
       .on('end', ()=>{
-      })
+      }) // end DRAG
     );
 
   this.centroidHandle.reposition = function(x,y){
     this.attr('cx', x)
       .attr('cy', y)
   };
+
+    // end centroidHandle
 
   
 

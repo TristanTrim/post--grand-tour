@@ -427,6 +427,7 @@ function LayerTransitionRenderer(gl, program, kwargs) {
   };
 
 
+    // start render ------------------------------------
   this.render = function(dt) {
     if(!this.shouldRender){
       return;
@@ -782,7 +783,7 @@ function LayerTransitionRenderer(gl, program, kwargs) {
     }
     this.layerIndexPrev = this.layerIndex;
     return;
-  };//end render
+  };// end render -------------------------------------------
 
   this.setFullScreen = function(shouldSet) {
     this.isFullScreen = shouldSet;
