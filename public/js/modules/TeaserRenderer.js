@@ -43,6 +43,19 @@ function TeaserRenderer(gl, program, kwargs) {
     this.scaleFactor = s;
   }
 
+
+    // ----------------------------
+    // ------ direct manip --------
+    // ----------------------------
+
+    this.isPointBrushed = new Array(this.npoint).fill(true);
+    this.isClassSelected = new Array(this.npoint).fill(true);
+
+    // ----------------------------
+    // -- end direct manip --------
+    // ----------------------------
+
+
   this.initData = function(buffer, url) {
     console.log(url);
     console.log(buffer);
@@ -410,6 +423,38 @@ function TeaserRenderer(gl, program, kwargs) {
     }
 
     dataObj.points = points;
+
+    // ----------------------------
+    // ------ direct manip --------
+    // ----------------------------
+
+    //noramlize points to webgl coordinate
+    dataObj.mean = math.mean(
+      points.map(row => {
+        return [row[0], row[1]];
+      }),
+    0);
+
+    dataObj.dmax = math.max(
+      points.map(row => {
+        return [
+          Math.abs(row[0]-dataObj.mean[0]), 
+          Math.abs(row[1]-dataObj.mean[1]), 
+        ];
+      })
+    );
+
+    points = points.map((row)=>{
+    row[0] -= dataObj.mean[0];
+    row[1] -= dataObj.mean[1];
+      return numeric.div(row, dataObj.dmax/(this.scaleFactor));
+    });
+
+    this.pointsNormalized = points; //used for brush
+
+    // ----------------------------
+    // -- end direct manip --------
+    // ----------------------------
 
     let colors = labels.map((d)=>utils.baseColors[d%utils.baseColors.length]);
     let bgColors = labels.map((d)=>utils.bgColors[d%utils.bgColors.length]);
