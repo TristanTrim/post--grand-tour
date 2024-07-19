@@ -6,6 +6,170 @@ function TeaserOverlay(renderer, kwargs) {
   this.renderer = renderer;
 
 
+  utils.walkObject(kwargs, (k) => {
+    this[k] = kwargs[k];
+  });
+
+  let that = this;
+  let figure = d3.select('d-figure.'+renderer.gl.canvas.id);
+  this.figure = figure;
+  
+  this.getDataset = function(){
+    return this.renderer.fixed_dataset || utils.getDataset();
+  };
+
+
+
+  this.epochSlider = figure
+    .insert('input', ':first-child')
+    .attr('type', 'range')
+    .attr('class', 'slider epochSlider')
+    .attr('min', renderer.epochs[0])
+    .attr('max', renderer.epochs[renderer.epochs.length-1])
+    .attr('value', renderer.epochIndex)
+    .on('input', function() {
+      let value = d3.select(this).property('value');
+      renderer.shouldAutoNextEpoch = false;
+      renderer.setEpochIndex(parseInt(value));
+      // renderer.render(0);
+      that.playButton.attr('class', 'tooltip play-button fa fa-play');
+      that.playButton.select('span').text('Play training');
+    });
+
+  //special treatment when showing only one peoch
+  if(renderer.epochs.length <= 1){
+    this.epochSlider.style('display', 'none');
+  }
+
+
+  this.playButton = figure
+    .insert('i', ':first-child')
+    .attr('class', "play-button tooltip fa " + (renderer.shouldAutoNextEpoch?"fa-pause":"fa-play") )
+    .on('mouseover', function() {
+      d3.select(this).style('opacity', 1);
+    })
+    .on('mouseout', function() {
+      d3.select(this).style('opacity', 0.7);
+    })
+    .on('click', function() {
+      renderer.shouldAutoNextEpoch = !renderer.shouldAutoNextEpoch;
+      if (renderer.shouldAutoNextEpoch) {
+        d3.select(this).attr('class', 'tooltip play-button fa fa-pause');
+        d3.select(this).select('span')
+        .text('Pause training');
+      } else {
+        d3.select(this).attr('class', 'tooltip play-button fa fa-play');
+        d3.select(this).select('span')
+        .text('Play training');
+      }
+    });
+  this.playButton.append('span')
+  .attr('class', 'tooltipText')
+  .text('Pause training');
+
+  if(renderer.epochs.length <= 1){
+    this.playButton.style('display', 'none');
+  }
+
+
+  this.fullScreenButton = figure
+    .insert('i', ':first-child')
+    .attr('class', 'tooltip teaser-fullscreenButton fas fa-expand-arrows-alt')
+    .on('mouseover', function() {
+      d3.select(this).style('opacity', 0.7);
+    })
+    .on('mouseout', function() {
+      if(renderer.isFullScreen){
+        d3.select(this).style('opacity', 0.7);
+      }else{
+        d3.select(this).style('opacity', 0.3);
+      }
+    })
+    .on('click', function(){
+
+      renderer.setFullScreen(!renderer.isFullScreen);
+      // that.resize();
+
+      if(renderer.isFullScreen){
+        d3.select(this).style('opacity', 0.7);
+      }else{
+        d3.select(this).style('opacity', 0.3);
+      }
+    });
+
+  this.fullScreenButton.append('span')
+    .attr('class', 'tooltipTextBottom')
+    .text('Toggle fullscreen');
+
+  this.grandtourButton = figure
+    .insert('i', ':first-child')
+    .attr('class', 'teaser-grandtourButton tooltip fas fa-globe-americas')
+    .attr('width', 32)
+    .attr('height', 32)
+    .style('opacity', renderer.shouldPlayGrandTour?0.7:0.3)
+    .on('mouseover', function() {
+      d3.select(this).style('opacity', 0.7);
+    })
+    .on('mouseout', function() {
+      if (renderer.shouldPlayGrandTour) {
+        d3.select(this).style('opacity', 0.7);
+      }else{
+        d3.select(this).style('opacity', 0.3);
+      }
+    });
+
+  this.grandtourButton.append('span')
+    .attr('class', 'tooltipText')
+    .text('Play Grand Tour');
+
+  this.grandtourButton
+    .on('click', function() {
+      renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
+      renderer.shouldCentralizeOrigin = renderer.shouldPlayGrandTour;
+
+      renderer.isScaleInTransition = true;
+      renderer.setScaleFactor(1.0);
+      renderer.scaleTransitionProgress = 
+        renderer.shouldCentralizeOrigin ? 
+        Math.min(1,renderer.scaleTransitionProgress)
+        :Math.max(0,renderer.scaleTransitionProgress);
+
+      let dt = 0.03;
+      renderer.scaleTransitionDelta = renderer.shouldCentralizeOrigin ? -dt:dt;
+
+      if (renderer.shouldPlayGrandTour) {
+        d3.select(this).select('span')
+        .text('Pause Grand Tour');
+        d3.select(this).style('opacity', 0.7);
+
+      } else {
+        d3.select(this).select('span')
+        .text('Play Grand Tour');
+        d3.select(this).style('opacity', 0.3);
+      }
+    });
+
+
+  this.svg = figure
+    .insert('svg', ':first-child')
+    .attr('class', 'overlay')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('xmlns:xhtml', 'http://www.w3.org/1999/xhtml') //WALKER: this is required to make "foreignObjects" tags work
+    .on('dblclick', function() {
+      // renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
+    })
+    .on('mousemove', ()=>{
+      //handle unsuccessful onscreen event
+      if (renderer.shouldRender == false){
+        renderer.shouldRender = true;
+        if(renderer.animId === null){
+          renderer.play();
+        }
+      }
+    });
+
+
 //---------------------------
 //-- direct manip stuff -----
 //---------------------------
@@ -392,7 +556,10 @@ function TeaserOverlay(renderer, kwargs) {
 
         let [x0, y0] = d3.event.selection[0];
         let [x1, y1] = d3.event.selection[1];
-        [y0,y1] = [y1,y0];
+        if ( y1 < y0){
+          console.log("Yikes. y1 was less than y0");
+          [y0,y1] = [y1,y0];
+        }
         
         this.centroidHandle.reposition((x0+x1)/2,(y0+y1)/2);
         
@@ -401,12 +568,12 @@ function TeaserOverlay(renderer, kwargs) {
         r = Math.min(r, 30);
         this.centroidHandle.attr('r', r);
 
-        x0 = this.sx.invert(x0);
-        x1 = this.sx.invert(x1);
-        y0 = this.sy.invert(y0);
-        y1 = this.sy.invert(y1);
+ //       x0 = this.sx.invert(x0);
+ //       x1 = this.sx.invert(x1);
+ //       y0 = this.sy.invert(y0);
+ //       y1 = this.sy.invert(y1);
 
-        let isPointBrushed = this.renderer.pointsNormalized.map(d=>{
+        let isPointBrushed = this.renderer.dataObj.points.map(d=>{
           let xInRange = x0<d[0] && d[0]<x1;
           let yInRange = y0<d[1] && d[1]<y1;
           return xInRange && yInRange;
@@ -416,10 +583,12 @@ function TeaserOverlay(renderer, kwargs) {
     })
     .on('end', ()=>{
       this.brush.fade();
-      if(d3.event.selection && numeric.sum(lt2.isPointSelected)>0 ){
+      if(d3.event.selection 
+          && numeric.sum(this.renderer.isPointBrushed)>0 ){
         // normal case: do nothing
       }else{
-        let n = this.renderer.npoint;
+        console.log("I got ya bro I'll get this mess ya caused cleaned up!");
+        let n = this.renderer.dataObj.npoint;
         this.renderer.isPointBrushed = Array(n).fill(true);
       }
     });
@@ -430,7 +599,7 @@ function TeaserOverlay(renderer, kwargs) {
     //draw brush centroid
     if(this.shouldShowCentroid){
       
-      let isPointSelected = this.renderer.isClassSelected.map((c,i)=>{
+      this.isPointSelected = this.renderer.isClassSelected.map((c,i)=>{
         return this.renderer.isPointBrushed[i] && this.renderer.isClassSelected[i];
       });
 
@@ -456,169 +625,6 @@ function TeaserOverlay(renderer, kwargs) {
 //-- end direct manip stuff -
 //---------------------------
 
-
-
-  utils.walkObject(kwargs, (k) => {
-    this[k] = kwargs[k];
-  });
-
-  let that = this;
-  let figure = d3.select('d-figure.'+renderer.gl.canvas.id);
-  this.figure = figure;
-  
-  this.getDataset = function(){
-    return this.renderer.fixed_dataset || utils.getDataset();
-  };
-
-
-  this.epochSlider = figure
-    .insert('input', ':first-child')
-    .attr('type', 'range')
-    .attr('class', 'slider epochSlider')
-    .attr('min', renderer.epochs[0])
-    .attr('max', renderer.epochs[renderer.epochs.length-1])
-    .attr('value', renderer.epochIndex)
-    .on('input', function() {
-      let value = d3.select(this).property('value');
-      renderer.shouldAutoNextEpoch = false;
-      renderer.setEpochIndex(parseInt(value));
-      // renderer.render(0);
-      that.playButton.attr('class', 'tooltip play-button fa fa-play');
-      that.playButton.select('span').text('Play training');
-    });
-
-  //special treatment when showing only one peoch
-  if(renderer.epochs.length <= 1){
-    this.epochSlider.style('display', 'none');
-  }
-
-
-  this.playButton = figure
-    .insert('i', ':first-child')
-    .attr('class', "play-button tooltip fa " + (renderer.shouldAutoNextEpoch?"fa-pause":"fa-play") )
-    .on('mouseover', function() {
-      d3.select(this).style('opacity', 1);
-    })
-    .on('mouseout', function() {
-      d3.select(this).style('opacity', 0.7);
-    })
-    .on('click', function() {
-      renderer.shouldAutoNextEpoch = !renderer.shouldAutoNextEpoch;
-      if (renderer.shouldAutoNextEpoch) {
-        d3.select(this).attr('class', 'tooltip play-button fa fa-pause');
-        d3.select(this).select('span')
-        .text('Pause training');
-      } else {
-        d3.select(this).attr('class', 'tooltip play-button fa fa-play');
-        d3.select(this).select('span')
-        .text('Play training');
-      }
-    });
-  this.playButton.append('span')
-  .attr('class', 'tooltipText')
-  .text('Pause training');
-
-  if(renderer.epochs.length <= 1){
-    this.playButton.style('display', 'none');
-  }
-
-
-  this.fullScreenButton = figure
-    .insert('i', ':first-child')
-    .attr('class', 'tooltip teaser-fullscreenButton fas fa-expand-arrows-alt')
-    .on('mouseover', function() {
-      d3.select(this).style('opacity', 0.7);
-    })
-    .on('mouseout', function() {
-      if(renderer.isFullScreen){
-        d3.select(this).style('opacity', 0.7);
-      }else{
-        d3.select(this).style('opacity', 0.3);
-      }
-    })
-    .on('click', function(){
-
-      renderer.setFullScreen(!renderer.isFullScreen);
-      // that.resize();
-
-      if(renderer.isFullScreen){
-        d3.select(this).style('opacity', 0.7);
-      }else{
-        d3.select(this).style('opacity', 0.3);
-      }
-    });
-
-  this.fullScreenButton.append('span')
-    .attr('class', 'tooltipTextBottom')
-    .text('Toggle fullscreen');
-
-  this.grandtourButton = figure
-    .insert('i', ':first-child')
-    .attr('class', 'teaser-grandtourButton tooltip fas fa-globe-americas')
-    .attr('width', 32)
-    .attr('height', 32)
-    .style('opacity', renderer.shouldPlayGrandTour?0.7:0.3)
-    .on('mouseover', function() {
-      d3.select(this).style('opacity', 0.7);
-    })
-    .on('mouseout', function() {
-      if (renderer.shouldPlayGrandTour) {
-        d3.select(this).style('opacity', 0.7);
-      }else{
-        d3.select(this).style('opacity', 0.3);
-      }
-    });
-
-  this.grandtourButton.append('span')
-    .attr('class', 'tooltipText')
-    .text('Play Grand Tour');
-
-  this.grandtourButton
-    .on('click', function() {
-      renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
-      renderer.shouldCentralizeOrigin = renderer.shouldPlayGrandTour;
-
-      renderer.isScaleInTransition = true;
-      renderer.setScaleFactor(1.0);
-      renderer.scaleTransitionProgress = 
-        renderer.shouldCentralizeOrigin ? 
-        Math.min(1,renderer.scaleTransitionProgress)
-        :Math.max(0,renderer.scaleTransitionProgress);
-
-      let dt = 0.03;
-      renderer.scaleTransitionDelta = renderer.shouldCentralizeOrigin ? -dt:dt;
-
-      if (renderer.shouldPlayGrandTour) {
-        d3.select(this).select('span')
-        .text('Pause Grand Tour');
-        d3.select(this).style('opacity', 0.7);
-
-      } else {
-        d3.select(this).select('span')
-        .text('Play Grand Tour');
-        d3.select(this).style('opacity', 0.3);
-      }
-    });
-
-
-  this.svg = figure
-    .insert('svg', ':first-child')
-    .attr('class', 'overlay')
-    .attr('width', width)
-    .attr('height', height)
-    .attr('xmlns:xhtml', 'http://www.w3.org/1999/xhtml') //WALKER: this is required to make "foreignObjects" tags work
-    .on('dblclick', function() {
-      // renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
-    })
-    .on('mousemove', ()=>{
-      //handle unsuccessful onscreen event
-      if (renderer.shouldRender == false){
-        renderer.shouldRender = true;
-        if(renderer.animId === null){
-          renderer.play();
-        }
-      }
-    });
 
 
   this.epochIndicator = this.svg.append('text')

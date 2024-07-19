@@ -23,6 +23,19 @@ function TeaserRenderer(gl, program, kwargs) {
   }
   this.pointSize0 = this.pointSize || 6.0;
 
+  // ----------------------------
+  // ------ direct manip --------
+  // ----------------------------
+
+  this.marginLeft = 2;
+  this.marginBottom = 80;
+  this.marginTop = 2;
+  this.marginRight = 80;
+
+  // ----------------------------
+  // -- end direct manip --------
+  // ----------------------------
+
   this.overlay = new TeaserOverlay(this, this.overlayKwargs);
 
 
@@ -43,17 +56,6 @@ function TeaserRenderer(gl, program, kwargs) {
     this.scaleFactor = s;
   }
 
-
-    // ----------------------------
-    // ------ direct manip --------
-    // ----------------------------
-
-    this.isPointBrushed = new Array(this.npoint).fill(true);
-    this.isClassSelected = new Array(this.npoint).fill(true);
-
-    // ----------------------------
-    // -- end direct manip --------
-    // ----------------------------
 
 
   this.initData = function(buffer, url) {
@@ -96,6 +98,20 @@ function TeaserRenderer(gl, program, kwargs) {
 
       this.dataObj.dataTensor = utils.reshape(arr, [nepoch, npoint, ndim]);
 
+
+      // ----------------------------
+      // ------ direct manip --------
+      // ----------------------------
+
+
+      this.isPointBrushed = new Array(npoint).fill(true);
+      this.isClassSelected = new Array(npoint).fill(true);
+
+      // ----------------------------
+      // -- end direct manip --------
+      // ----------------------------
+
+
     }
 
     if (this.dataObj.dataTensor !== undefined 
@@ -137,6 +153,8 @@ function TeaserRenderer(gl, program, kwargs) {
         // this.shouldRecalculateColorRect = true;
         this.play();
       }
+
+
 
 
   }; // end // initData
@@ -357,6 +375,7 @@ function TeaserRenderer(gl, program, kwargs) {
   };
   
 
+  // start render fn ---------------------------
   this.render = function(dt) {
     if(this.dataObj.dataTensor === undefined){
       return;
@@ -364,6 +383,7 @@ function TeaserRenderer(gl, program, kwargs) {
     
     let dataObj = this.dataObj;
     let data = this.dataObj.dataTensor[this.epochIndex];
+    this.currentData = data; // used in direct manip
     let labels = this.dataObj.labels;
     let gl = this.gl;
     let gt = this.gt;
@@ -428,29 +448,31 @@ function TeaserRenderer(gl, program, kwargs) {
     // ------ direct manip --------
     // ----------------------------
 
-    //noramlize points to webgl coordinate
-    dataObj.mean = math.mean(
-      points.map(row => {
-        return [row[0], row[1]];
-      }),
-    0);
 
-    dataObj.dmax = math.max(
-      points.map(row => {
-        return [
-          Math.abs(row[0]-dataObj.mean[0]), 
-          Math.abs(row[1]-dataObj.mean[1]), 
-        ];
-      })
-    );
+//    //noramlize points to webgl coordinate
+//
+//    pointsNormalized = points.slice();
+//    dataObj.mean = math.mean(
+//      pointsNormalized.map(row => {
+//        return [row[0], row[1]];
+//      }),
+//    0);
+//
+//    dataObj.dmax = math.max(
+//      pointsNormalized.map(row => {
+//        return [
+//          Math.abs(row[0]-dataObj.mean[0]), 
+//          Math.abs(row[1]-dataObj.mean[1]), 
+//        ];
+//      })
+//    );
+//
+//    this.pointsNormalized = pointsNormalized.map((row)=>{
+//      row[0] -= dataObj.mean[0];
+//      row[1] -= dataObj.mean[1];
+//      return numeric.div(row, dataObj.dmax/(this.scaleFactor));
+//    });  //used for brush
 
-    points = points.map((row)=>{
-    row[0] -= dataObj.mean[0];
-    row[1] -= dataObj.mean[1];
-      return numeric.div(row, dataObj.dmax/(this.scaleFactor));
-    });
-
-    this.pointsNormalized = points; //used for brush
 
     // ----------------------------
     // -- end direct manip --------
@@ -528,5 +550,5 @@ function TeaserRenderer(gl, program, kwargs) {
       this.setMode('image');
     }
     return;
-  };
+  }; // end render fn ----------------------
 }
