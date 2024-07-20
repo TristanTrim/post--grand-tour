@@ -579,6 +579,9 @@ function TeaserOverlay(renderer, kwargs) {
           return xInRange && yInRange;
         });
         this.renderer.isPointBrushed = isPointBrushed;
+
+        se1.dataObj.alphas = se1.isPointBrushed.map((brushy)=>brushy?255:32);
+
       }
     })
     .on('end', ()=>{
@@ -587,7 +590,6 @@ function TeaserOverlay(renderer, kwargs) {
           && numeric.sum(this.renderer.isPointBrushed)>0 ){
         // normal case: do nothing
       }else{
-        console.log("I got ya bro I'll get this mess ya caused cleaned up!");
         let n = this.renderer.dataObj.npoint;
         this.renderer.isPointBrushed = Array(n).fill(true);
       }
