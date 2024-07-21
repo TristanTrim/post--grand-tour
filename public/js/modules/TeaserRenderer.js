@@ -165,7 +165,6 @@ function TeaserRenderer(gl, program, kwargs) {
     let canvas = this.gl.canvas;
     let canvasSelection = d3.select('#'+canvas.id);
 
-    let topBarHeight = 0 || d3.select('nav').node().clientHeight;
 
     d3.select(canvas.parentNode)
       .classed('fullscreen', shouldSet);

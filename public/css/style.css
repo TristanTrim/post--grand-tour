@@ -7,6 +7,10 @@ d-title p{
   border-bottom: solid 1px rgba(0, 0, 0, 0.1);
 }
 
+d-article{
+  padding-top: 0px;
+}
+
 figcaption a, d-article a{
   border-bottom: 1px dotted rgba(0, 0, 0, 0.4);
 }
@@ -245,6 +249,7 @@ svg text.method{
 d-figure{
   position: relative;
   grid-column: text;
+  margin-top: 2em;
   /*margin: 1rem 0;*/
 }
 
@@ -255,6 +260,7 @@ d-figure.nn2{
 
 d-figure.fullscreen{
   grid-column: screen;
+  margin-top: 0em;
 }
 
 d-figure.nngt2{
