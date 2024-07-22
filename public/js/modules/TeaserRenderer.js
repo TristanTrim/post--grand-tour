@@ -21,7 +21,7 @@ function TeaserRenderer(gl, program, kwargs) {
   if (!this.hasOwnProperty('shouldAutoNextEpoch')){
     this.shouldAutoNextEpoch = true;
   }
-  this.pointSize0 = this.pointSize || 6.0;
+  this.pointSize0 = this.pointSize || 1.5;
 
   // ----------------------------
   // ------ direct manip --------
