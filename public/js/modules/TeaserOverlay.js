@@ -31,12 +31,21 @@ function TeaserOverlay(renderer, kwargs) {
   .on("keydown", ()=>{
       if(this.renderer.mouse_over_fig){
 
+        // display mode, hiding or showing points
         if ( this.renderer.sel_mode == "display" ){
           if (d3.event.key == "a"){
-              alert("nyi");
+              this.renderer.isPointShown.fill(true);
+              this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:0);
               this.renderer.sel_mode = "";
           } else if (d3.event.key == "s"){
-              alert("nyi");
+              this.renderer.isPointShown = 
+                  numeric.and(
+                    this.renderer.isPointShown,
+                    numeric.not(this.renderer.isPointSelected)
+                  );
+              this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:0);
+              this.renderer.isPointSelected.fill(false);
+              this.renderer.isPointHighlighted.fill(false);
               this.renderer.sel_mode = "";
           } else if (d3.event.key == "f"){
               this.renderer.isPointShown = this.renderer.isPointSelected.slice();
@@ -300,7 +309,7 @@ function TeaserOverlay(renderer, kwargs) {
               } else if (this.renderer.isPointShown[i]){
                 return 32;
               }else {
-                return 1;
+                return 0;
               }
             });
 
