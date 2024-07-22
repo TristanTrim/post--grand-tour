@@ -32,11 +32,14 @@ function TeaserOverlay(renderer, kwargs) {
       if(this.renderer.mouse_over_fig){
           if (d3.event.key == "a")
               this.renderer.sel_mode = "add";
+              this.selector.attr("stroke-opacity",1);
       }
   })
   .on("keyup", ()=>{
-      if (d3.event.key == "a")
+      if (d3.event.key == "a") {
           this.renderer.sel_mode = "";
+          this.selector.attr("stroke-opacity",0);
+      }
   })
   .on('mousedown click',()=>{
     if(this.renderer.sel_mode == "add"){
@@ -194,24 +197,7 @@ function TeaserOverlay(renderer, kwargs) {
     })
     .on('mousemove', ()=>{
 
-      if ( this.renderer.sel_mode == "add" ){
-        let x1 = d3.event.layerX;
-        let y1 = d3.event.layerY;
-        if (this.renderer.brush_start_pos) {
-          let [x0,y0] = this.renderer.brush_start_pos;
-
-          if (x0 > x1) [x0,x1] = [x1,x0];
-          if (y0 > y1) [y0,y1] = [y1,y0];
-          
-
-          this.brushHandle.call(se1.overlay.brush.move,
-                [[x0,y0],[x1,y1]]);
-        } else {
-          this.renderer.brush_start_pos = [x1,y1];
-        }
-      }else{
-        this.renderer.brush_start_pos = undefined;
-      }
+      this.handleFigMove();
 
       //handle unsuccessful onscreen event
       if (renderer.shouldRender == false){
@@ -227,6 +213,57 @@ function TeaserOverlay(renderer, kwargs) {
 //---------------------------
 //-- direct manip stuff -----
 //---------------------------
+// BONUS REWRITE!!!!!!!
+
+    this.handleFigMove = function(){
+
+      if ( this.renderer.sel_mode == "add" ){
+        let x1 = d3.event.layerX;
+        let y1 = d3.event.layerY;
+        if (this.renderer.brush_start_pos) {
+          let [x0,y0] = this.renderer.brush_start_pos;
+
+          if (x0 > x1) [x0,x1] = [x1,x0];
+          if (y0 > y1) [y0,y1] = [y1,y0];
+          
+
+        //  this.brushHandle.call(se1.overlay.brush.move,
+        //        [[x0,y0],[x1,y1]]);
+            this.selector
+              .attr("x",x0)
+              .attr("y",y0)
+              .attr("width",x1-x0)
+              .attr("height",y1-y0)
+              ;
+
+            let isPointBrushed = this.renderer.dataObj.points.map(d=>{
+              let xInRange = x0<d[0] && d[0]<x1;
+              let yInRange = y0<d[1] && d[1]<y1;
+              return xInRange && yInRange;
+            });
+            this.renderer.isPointBrushed = isPointBrushed;
+
+            this.renderer.dataObj.alphas = se1.isPointBrushed.map((brushy)=>brushy?255:32);
+
+            this.renderer.brushedPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointBrushed[i]);
+
+            if (this.renderer.brushedPoints.length>0){
+              let pointsMean = math.mean(this.renderer.brushedPoints,0);
+              this.centroidHandle
+                .attr("cx",pointsMean[0])
+                .attr("cy",pointsMean[1]);
+            }
+
+        } else {
+          this.renderer.brush_start_pos = [x1,y1];
+        }
+      }else{
+        this.renderer.brush_start_pos = undefined;
+      }
+
+    };
+
+// Old~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   //developer options start =================
   let isDev = true;
@@ -297,16 +334,22 @@ function TeaserOverlay(renderer, kwargs) {
    };
   this.updateScale();
 
-  this.brush = d3.brush();
-  this.brushHandle = this.svg.append('g') // I seriously have no idea why there's brush and brushHandle.
-    .attr('class', 'brush')
-    .call(this.brush);
+  this.selector = this.svg.append('rect')
+    .attr('stroke','white')
+    .attr("fill-opacity",0)
+    .attr("stroke-opacity",0)
+    ;
+
+//  this.brush = d3.brush();
+//  this.brushHandle = this.svg.append('g') // I seriously have no idea why there's brush and brushHandle.
+//    .attr('class', 'brush')
+//    .call(this.brush);
 
   this.centroidHandle = this.svg
-    .selectAll('g.brush')
-    .selectAll('.centroidHandle')
-    .data([0])
-    .enter()
+//    .selectAll('g.brush')
+//    .selectAll('.centroidHandle')
+//    .data([0])
+//    .enter()
     .append('circle')
     .attr('class', 'centroidHandle')
     .attr('r', 20)
@@ -316,7 +359,7 @@ function TeaserOverlay(renderer, kwargs) {
     .call(
       d3.drag() // DRAG
       .on('start', ()=>{
-        this.brush.hide();
+//        this.brush.hide();
         this.pcaIteration = 0;
         this.isViewManipulated = true;
         this.updateScale();
@@ -567,6 +610,14 @@ function TeaserOverlay(renderer, kwargs) {
 
 
         }
+
+        this.renderer.brushedPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointBrushed[i]);
+        if (this.renderer.brushedPoints.length>0){
+          let pointsMean = math.mean(this.renderer.brushedPoints,0);
+          this.centroidHandle
+            .attr("cx",pointsMean[0])
+            .attr("cy",pointsMean[1]);
+        }
       }) // end ON DRAG
       .on('end', ()=>{
       }) // end DRAG
@@ -581,73 +632,73 @@ function TeaserOverlay(renderer, kwargs) {
 
   
 
-  this.brush.hide = ()=>{
-    this.svg.select('g.brush>.selection')
-    .style('fill-opacity', 0.01)
-    .style('stroke-opacity', 0.01);
-  };
-
-  this.brush.fade = ()=>{
-    this.svg.select('g.brush>.selection')
-    .style('fill-opacity', 0.01);
-  };
-
-  this.brush.show = ()=>{
-    this.svg.select('g.brush>.selection')
-    .style('fill-opacity', 0.3)
-    .style('stroke-opacity', null);
-
-  };
-
-  this.brush
-    .on('start', ()=>{
-      this.brush.show();
-      this.updateScale();
-    })
-    .on('brush', ()=>{
-      if(d3.event.selection){
-        this.shouldShowCentroid = true;
-
-        let [x0, y0] = d3.event.selection[0];
-        let [x1, y1] = d3.event.selection[1];
-        if ( y1 < y0){
-          console.log("Yikes. y1 was less than y0");
-          [y0,y1] = [y1,y0];
-        }
-        
-        this.centroidHandle.reposition((x0+x1)/2,(y0+y1)/2);
-        
-        let r = Math.min(Math.abs(x1-x0),Math.abs(y1-y0))/3;
-        r = Math.max(r, 12);
-        r = Math.min(r, 30);
-        this.centroidHandle.attr('r', r);
-
- //       x0 = this.sx.invert(x0);
- //       x1 = this.sx.invert(x1);
- //       y0 = this.sy.invert(y0);
- //       y1 = this.sy.invert(y1);
-
-        let isPointBrushed = this.renderer.dataObj.points.map(d=>{
-          let xInRange = x0<d[0] && d[0]<x1;
-          let yInRange = y0<d[1] && d[1]<y1;
-          return xInRange && yInRange;
-        });
-        this.renderer.isPointBrushed = isPointBrushed;
-
-        se1.dataObj.alphas = se1.isPointBrushed.map((brushy)=>brushy?255:32);
-
-      }
-    })
-    .on('end', ()=>{
-      this.brush.fade();
-      if(d3.event.selection 
-          && numeric.sum(this.renderer.isPointBrushed)>0 ){
-        // normal case: do nothing
-      }else{
-        let n = this.renderer.dataObj.npoint;
-        this.renderer.isPointBrushed = Array(n).fill(true);
-      }
-    });
+//  this.brush.hide = ()=>{
+//    this.svg.select('g.brush>.selection')
+//    .style('fill-opacity', 0.01)
+//    .style('stroke-opacity', 0.01);
+//  };
+//
+//  this.brush.fade = ()=>{
+//    this.svg.select('g.brush>.selection')
+//    .style('fill-opacity', 0.01);
+//  };
+//
+//  this.brush.show = ()=>{
+//    this.svg.select('g.brush>.selection')
+//    .style('fill-opacity', 0.3)
+//    .style('stroke-opacity', null);
+//
+//  };
+//
+//  this.brush
+//    .on('start', ()=>{
+//      this.brush.show();
+//      this.updateScale();
+//    })
+//    .on('brush', ()=>{
+//      if(d3.event.selection){
+//        this.shouldShowCentroid = true;
+//
+//        let [x0, y0] = d3.event.selection[0];
+//        let [x1, y1] = d3.event.selection[1];
+//        if ( y1 < y0){
+//          console.log("Yikes. y1 was less than y0");
+//          [y0,y1] = [y1,y0];
+//        }
+//        
+//        this.centroidHandle.reposition((x0+x1)/2,(y0+y1)/2);
+//        
+//        let r = Math.min(Math.abs(x1-x0),Math.abs(y1-y0))/3;
+//        r = Math.max(r, 12);
+//        r = Math.min(r, 30);
+//        this.centroidHandle.attr('r', r);
+//
+// //       x0 = this.sx.invert(x0);
+// //       x1 = this.sx.invert(x1);
+// //       y0 = this.sy.invert(y0);
+// //       y1 = this.sy.invert(y1);
+//
+//        let isPointBrushed = this.renderer.dataObj.points.map(d=>{
+//          let xInRange = x0<d[0] && d[0]<x1;
+//          let yInRange = y0<d[1] && d[1]<y1;
+//          return xInRange && yInRange;
+//        });
+//        this.renderer.isPointBrushed = isPointBrushed;
+//
+//        se1.dataObj.alphas = se1.isPointBrushed.map((brushy)=>brushy?255:32);
+//
+//      }
+//    })
+//    .on('end', ()=>{
+//      this.brush.fade();
+//      if(d3.event.selection 
+//          && numeric.sum(this.renderer.isPointBrushed)>0 ){
+//        // normal case: do nothing
+//      }else{
+//        let n = this.renderer.dataObj.npoint;
+//        this.renderer.isPointBrushed = Array(n).fill(true);
+//      }
+//    });
 
 //-----
 
