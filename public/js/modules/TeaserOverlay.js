@@ -30,11 +30,16 @@ function TeaserOverlay(renderer, kwargs) {
   d3.select("body")
   .on("keydown", ()=>{
       if(this.renderer.mouse_over_fig){
+
+        // basic selection actions
           if (d3.event.key == "a"){
               this.renderer.sel_mode = "add";
               this.selector.attr("stroke-opacity",1);
           } else if (d3.event.key == "s"){
               this.renderer.sel_mode = "sub";
+              this.selector.attr("stroke-opacity",1);
+          } else if (d3.event.key == "f"){
+              this.renderer.sel_mode = "focus";
               this.selector.attr("stroke-opacity",1);
           }
       }
@@ -42,6 +47,7 @@ function TeaserOverlay(renderer, kwargs) {
   .on("keyup", ()=>{
       if (d3.event.key == "a"
         ||d3.event.key == "s"
+        ||d3.event.key == "f"
       ) {
           this.renderer.sel_mode = "";
           this.selector.attr("stroke-opacity",0);
@@ -221,6 +227,7 @@ function TeaserOverlay(renderer, kwargs) {
 
       if ( this.renderer.sel_mode == "add" 
          ||this.renderer.sel_mode == "sub"
+         ||this.renderer.sel_mode == "focus"
       ){
         let x1 = d3.event.layerX;
         let y1 = d3.event.layerY;
@@ -258,6 +265,12 @@ function TeaserOverlay(renderer, kwargs) {
                     this.renderer.isPointSelected,
                     numeric.not(this.renderer.isPointBrushed)
               );
+            } else if (this.renderer.sel_mode == "focus"){
+              if ( numeric.sum(this.renderer.isPointBrushed) >0 ){
+                isHighlighted = this.renderer.isPointBrushed.slice();
+              }else{
+                isHighlighted = this.renderer.isPointSelected.slice();
+              }
             }
 
             this.renderer.isPointHighlighted = isHighlighted;
