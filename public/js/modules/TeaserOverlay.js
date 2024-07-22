@@ -2,6 +2,7 @@ function TeaserOverlay(renderer, kwargs) {
   let canvas = renderer.gl.canvas;
   let width = canvas.clientWidth;
   let height = canvas.clientHeight;
+
   this.selectedClasses = new Set();
   this.renderer = renderer;
 
@@ -13,10 +14,42 @@ function TeaserOverlay(renderer, kwargs) {
   let that = this;
   let figure = d3.select('d-figure.'+renderer.gl.canvas.id);
   this.figure = figure;
-  
+
+
+  this.figure
+  .on("mouseenter", ()=>{
+      this.renderer.mouse_over_fig = true;
+  })
+  .on("mouseleave", ()=>{
+      this.renderer.mouse_over_fig = false;
+  })
+  ;
+
+  this.renderer.sel_mode = "";
+
+  d3.select("body")
+  .on("keydown", ()=>{
+      if(this.renderer.mouse_over_fig){
+          if (d3.event.key == "a")
+              this.renderer.sel_mode = "add";
+      }
+  })
+  .on("keyup", ()=>{
+      if (d3.event.key == "a")
+          this.renderer.sel_mode = "";
+  })
+  .on('mousedown click',()=>{
+    if(this.renderer.sel_mode == "add"){
+      d3.event.preventDefault();
+    }
+  })
+  ;
+
+
   this.getDataset = function(){
     return this.renderer.fixed_dataset || utils.getDataset();
   };
+
 
 
 
@@ -160,6 +193,26 @@ function TeaserOverlay(renderer, kwargs) {
       // renderer.shouldPlayGrandTour = !renderer.shouldPlayGrandTour;
     })
     .on('mousemove', ()=>{
+
+      if ( this.renderer.sel_mode == "add" ){
+        let x1 = d3.event.layerX;
+        let y1 = d3.event.layerY;
+        if (this.renderer.brush_start_pos) {
+          let [x0,y0] = this.renderer.brush_start_pos;
+
+          if (x0 > x1) [x0,x1] = [x1,x0];
+          if (y0 > y1) [y0,y1] = [y1,y0];
+          
+
+          this.brushHandle.call(se1.overlay.brush.move,
+                [[x0,y0],[x1,y1]]);
+        } else {
+          this.renderer.brush_start_pos = [x1,y1];
+        }
+      }else{
+        this.renderer.brush_start_pos = undefined;
+      }
+
       //handle unsuccessful onscreen event
       if (renderer.shouldRender == false){
         renderer.shouldRender = true;
@@ -167,7 +220,8 @@ function TeaserOverlay(renderer, kwargs) {
           renderer.play();
         }
       }
-    });
+    })
+    ;
 
 
 //---------------------------
@@ -244,7 +298,7 @@ function TeaserOverlay(renderer, kwargs) {
   this.updateScale();
 
   this.brush = d3.brush();
-  this.svg.append('g')
+  this.brushHandle = this.svg.append('g') // I seriously have no idea why there's brush and brushHandle.
     .attr('class', 'brush')
     .call(this.brush);
 
