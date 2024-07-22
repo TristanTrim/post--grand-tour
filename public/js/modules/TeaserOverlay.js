@@ -39,6 +39,7 @@ function TeaserOverlay(renderer, kwargs) {
       if (d3.event.key == "a") {
           this.renderer.sel_mode = "";
           this.selector.attr("stroke-opacity",0);
+          this.renderer.isPointSelected = this.renderer.isPointHighlighted.slice();
       }
   })
   .on('mousedown click',()=>{
@@ -243,12 +244,19 @@ function TeaserOverlay(renderer, kwargs) {
             });
             this.renderer.isPointBrushed = isPointBrushed;
 
-            this.renderer.dataObj.alphas = se1.isPointBrushed.map((brushy)=>brushy?255:32);
+            let isHighlighted = numeric.bor(
+                  this.renderer.isPointSelected,
+                  this.renderer.isPointBrushed
+            );
+            this.renderer.isPointHighlighted = isHighlighted;
 
-            this.renderer.brushedPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointBrushed[i]);
+            this.renderer.dataObj.alphas = this.renderer.isPointHighlighted.map((brushy)=>brushy?255:32);
 
-            if (this.renderer.brushedPoints.length>0){
-              let pointsMean = math.mean(this.renderer.brushedPoints,0);
+
+            this.renderer.hlPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointHighlighted[i]);
+
+            if (this.renderer.hlPoints.length>0){
+              let pointsMean = math.mean(this.renderer.hlPoints,0);
               this.centroidHandle
                 .attr("cx",pointsMean[0])
                 .attr("cy",pointsMean[1]);
@@ -382,19 +390,15 @@ function TeaserOverlay(renderer, kwargs) {
 
         let selectedPoints = this.renderer.currentData
         .filter((d,i)=>{
-          return this.renderer.isPointBrushed[i] && this.renderer.isClassSelected[i];
+          return this.renderer.isPointSelected[i];
         });
 
         if (selectedPoints.length>0){
 
           let centroid = math.mean(selectedPoints, 0);
           let norm = numeric.norm2(centroid);
-          let isPointSelected = numeric.mul(
-            this.renderer.isPointBrushed,
-            this.renderer.isClassSelected
-          );
 
-
+          let isPointSelected = this.renderer.isPointSelected;
 
           let t, maxIter;
           if(selectedPoints[0].length > 15){
@@ -407,10 +411,6 @@ function TeaserOverlay(renderer, kwargs) {
 
           if(this.pcaIteration < maxIter && this.directManipulationMode=='PCA'){
             let x2 = this.renderer.currentData;
-            let isPointSelected = numeric.mul(
-                this.renderer.isPointBrushed,
-                this.renderer.isClassSelected
-            );
             let x2Selected = x2.filter((d,i)=>{
               return isPointSelected[i];
             });
@@ -611,9 +611,9 @@ function TeaserOverlay(renderer, kwargs) {
 
         }
 
-        this.renderer.brushedPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointBrushed[i]);
-        if (this.renderer.brushedPoints.length>0){
-          let pointsMean = math.mean(this.renderer.brushedPoints,0);
+        this.renderer.selectedPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointSelected[i]);
+        if (this.renderer.selectedPoints.length>0){
+          let pointsMean = math.mean(this.renderer.selectedPoints,0);
           this.centroidHandle
             .attr("cx",pointsMean[0])
             .attr("cy",pointsMean[1]);
@@ -705,6 +705,7 @@ function TeaserOverlay(renderer, kwargs) {
   this.redrawCentroidHandle = function(){
     //draw brush centroid
     if(this.shouldShowCentroid){
+      
       
       this.isPointSelected = this.renderer.isClassSelected.map((c,i)=>{
         return this.renderer.isPointBrushed[i] && this.renderer.isClassSelected[i];

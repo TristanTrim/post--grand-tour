@@ -103,9 +103,9 @@ function TeaserRenderer(gl, program, kwargs) {
       // ------ direct manip --------
       // ----------------------------
 
-
-      this.isPointBrushed = new Array(npoint).fill(true);
-      this.isClassSelected = new Array(npoint).fill(true);
+      this.isPointBrushed = new Array(npoint).fill(false);
+      this.isPointSelected = new Array(npoint).fill(false);
+      this.isPointHighlighted = new Array(npoint).fill(false);
 
       // ----------------------------
       // -- end direct manip --------
