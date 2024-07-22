@@ -31,6 +31,19 @@ function TeaserOverlay(renderer, kwargs) {
   .on("keydown", ()=>{
       if(this.renderer.mouse_over_fig){
 
+        if ( this.renderer.sel_mode == "display" ){
+          if (d3.event.key == "a"){
+              alert("nyi");
+              this.renderer.sel_mode = "";
+          } else if (d3.event.key == "s"){
+              alert("nyi");
+              this.renderer.sel_mode = "";
+          } else if (d3.event.key == "f"){
+              this.renderer.isPointShown = this.renderer.isPointSelected.slice();
+              this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:1);
+              this.renderer.sel_mode = "";
+          }
+        }else{
         // basic selection actions
           if (d3.event.key == "a"){
               this.renderer.sel_mode = "add";
@@ -41,7 +54,12 @@ function TeaserOverlay(renderer, kwargs) {
           } else if (d3.event.key == "f"){
               this.renderer.sel_mode = "focus";
               this.selector.attr("stroke-opacity",1);
+
+        // enter display (show/hide) cmd
+          } else if (d3.event.key == "d"){
+              this.renderer.sel_mode = "display";
           }
+        }
       }
   })
   .on("keyup", ()=>{
@@ -247,10 +265,11 @@ function TeaserOverlay(renderer, kwargs) {
               .attr("height",y1-y0)
               ;
 
-            let isPointBrushed = this.renderer.dataObj.points.map(d=>{
+            let isPointBrushed = this.renderer.dataObj.points.map((d,i)=>{
+              let shown = this.renderer.isPointShown[i];
               let xInRange = x0<d[0] && d[0]<x1;
               let yInRange = y0<d[1] && d[1]<y1;
-              return xInRange && yInRange;
+              return shown && xInRange && yInRange;
             });
             this.renderer.isPointBrushed = isPointBrushed;
 
@@ -266,7 +285,7 @@ function TeaserOverlay(renderer, kwargs) {
                     numeric.not(this.renderer.isPointBrushed)
               );
             } else if (this.renderer.sel_mode == "focus"){
-              if ( numeric.sum(this.renderer.isPointBrushed) >0 ){
+              if ( numeric.any(this.renderer.isPointBrushed) >0 ){
                 isHighlighted = this.renderer.isPointBrushed.slice();
               }else{
                 isHighlighted = this.renderer.isPointSelected.slice();
@@ -275,7 +294,15 @@ function TeaserOverlay(renderer, kwargs) {
 
             this.renderer.isPointHighlighted = isHighlighted;
 
-            this.renderer.dataObj.alphas = this.renderer.isPointHighlighted.map((brushy)=>brushy?255:32);
+            this.renderer.dataObj.alphas = this.renderer.isPointHighlighted.map((brushy,i)=>{
+              if (brushy) {
+                  return 255;
+              } else if (this.renderer.isPointShown[i]){
+                return 32;
+              }else {
+                return 1;
+              }
+            });
 
 
             this.renderer.hlPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointHighlighted[i]);

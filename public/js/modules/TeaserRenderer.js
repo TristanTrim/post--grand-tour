@@ -106,6 +106,7 @@ function TeaserRenderer(gl, program, kwargs) {
       this.isPointBrushed = new Array(npoint).fill(false);
       this.isPointSelected = new Array(npoint).fill(false);
       this.isPointHighlighted = new Array(npoint).fill(false);
+      this.isPointShown = new Array(npoint).fill(true);
 
       // ----------------------------
       // -- end direct manip --------
@@ -516,8 +517,8 @@ function TeaserRenderer(gl, program, kwargs) {
     gl.vertexAttribPointer(colorLoc, 4, gl.UNSIGNED_BYTE, true, 0, 0);
     gl.enableVertexAttribArray(colorLoc);
     
-    let c0 = bgColors.map((c, i)=>[c[0], c[1], c[2], utils.pointAlpha]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(flatten(c0)), gl.STATIC_DRAW);
+ //   let c0 = bgColors.map((c, i)=>[c[0], c[1], c[2], utils.pointAlpha]);
+ //   gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(flatten(c0)), gl.STATIC_DRAW);
 
     let c1;
     if (this.mode === 'point') {
