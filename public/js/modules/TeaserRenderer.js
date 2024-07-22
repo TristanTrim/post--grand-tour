@@ -10,7 +10,11 @@ function TeaserRenderer(gl, program, kwargs) {
   utils.walkObject(kwargs, (k) => {
     this[k] = kwargs[k];
   });
+
   this.dataObj = {};
+  this.ds_labels = [];
+  this.ds_colors = [];
+
   this.mode = this.mode || 'point'; //default point mode, or overwritten by kwargs
   this.epochIndex = this.epochIndex || this.epochs[0];
   this.colorFactor = utils.COLOR_FACTOR;
@@ -35,6 +39,12 @@ function TeaserRenderer(gl, program, kwargs) {
   // ----------------------------
   // -- end direct manip --------
   // ----------------------------
+
+  this.clearLabels = function(){
+    se1.dataObj.labels.fill(0);
+    this.overlay.initLegend([[127,127,127]],['unclassed']);
+    this.overlay.repositionAll();
+  };
 
   this.overlay = new TeaserOverlay(this, this.overlayKwargs);
 
