@@ -30,22 +30,23 @@ function TeaserOverlay(renderer, kwargs) {
   d3.select("body")
   .on("keydown", ()=>{
       if(this.renderer.mouse_over_fig){
-          if (d3.event.key == "a")
+          if (d3.event.key == "a"){
               this.renderer.sel_mode = "add";
               this.selector.attr("stroke-opacity",1);
+          } else if (d3.event.key == "s"){
+              this.renderer.sel_mode = "sub";
+              this.selector.attr("stroke-opacity",1);
+          }
       }
   })
   .on("keyup", ()=>{
-      if (d3.event.key == "a") {
+      if (d3.event.key == "a"
+        ||d3.event.key == "s"
+      ) {
           this.renderer.sel_mode = "";
           this.selector.attr("stroke-opacity",0);
           this.renderer.isPointSelected = this.renderer.isPointHighlighted.slice();
       }
-  })
-  .on('mousedown click',()=>{
-    if(this.renderer.sel_mode == "add"){
-      d3.event.preventDefault();
-    }
   })
   ;
 
@@ -218,7 +219,9 @@ function TeaserOverlay(renderer, kwargs) {
 
     this.handleFigMove = function(){
 
-      if ( this.renderer.sel_mode == "add" ){
+      if ( this.renderer.sel_mode == "add" 
+         ||this.renderer.sel_mode == "sub"
+      ){
         let x1 = d3.event.layerX;
         let y1 = d3.event.layerY;
         if (this.renderer.brush_start_pos) {
@@ -244,10 +247,19 @@ function TeaserOverlay(renderer, kwargs) {
             });
             this.renderer.isPointBrushed = isPointBrushed;
 
-            let isHighlighted = numeric.bor(
-                  this.renderer.isPointSelected,
-                  this.renderer.isPointBrushed
-            );
+            let isHighlighted;
+            if (this.renderer.sel_mode == "add"){
+              isHighlighted = numeric.or(
+                    this.renderer.isPointSelected,
+                    this.renderer.isPointBrushed
+              );
+            } else if (this.renderer.sel_mode == "sub"){
+              isHighlighted = numeric.and(
+                    this.renderer.isPointSelected,
+                    numeric.not(this.renderer.isPointBrushed)
+              );
+            }
+
             this.renderer.isPointHighlighted = isHighlighted;
 
             this.renderer.dataObj.alphas = this.renderer.isPointHighlighted.map((brushy)=>brushy?255:32);
@@ -259,7 +271,11 @@ function TeaserOverlay(renderer, kwargs) {
               let pointsMean = math.mean(this.renderer.hlPoints,0);
               this.centroidHandle
                 .attr("cx",pointsMean[0])
-                .attr("cy",pointsMean[1]);
+                .attr("cy",pointsMean[1])
+                .attr("opacity",1)
+                ;
+            }else{
+              this.centroidHandle .attr("opacity",0) ;
             }
 
         } else {
@@ -364,6 +380,7 @@ function TeaserOverlay(renderer, kwargs) {
     .attr('fill', '#777')
     .attr('fill-opacity', 0.1)
     .attr('stroke', 'orange')
+    .attr("opacity",0)
     .call(
       d3.drag() // DRAG
       .on('start', ()=>{
