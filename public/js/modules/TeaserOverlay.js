@@ -1002,7 +1002,7 @@ function TeaserOverlay(renderer, kwargs) {
         .attr('y', height-20);
     }
 
-    let r = (this.legend_sy(1)-this.legend_sy(0))/4;
+    let r = math.min(5,(this.legend_sy(1)-this.legend_sy(0))/4);
     this.legendMark
       .attr('cx', this.legend_sx(0.0)+2.5*r)
       .attr('cy', (c, i)=>this.legend_sy(i+0.5))
@@ -1010,12 +1010,12 @@ function TeaserOverlay(renderer, kwargs) {
 
     this.legendText
       .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
-      .attr('y', (l, i)=>this.legend_sy(i+0.7));
+      .attr('y', (l, i)=>this.legend_sy(i+0.5)+3);
 
     //WALKER: declaring legend count
     this.legendCount
       .attr('x', +this.legend_sx(0.0)+2.5*r+8*r) //8 is a magic value for padding, dunno what it means
-      .attr('y', (l, i)=>this.legend_sy(i+0.7));
+      .attr('y', (l, i)=>this.legend_sy(i+0.5)+3);
 
     //WALKER: declaring filter
     this.confidenceFilter
@@ -1233,11 +1233,11 @@ function TeaserOverlay(renderer, kwargs) {
 
 
     this.svg.selectAll('.legendMark')
-      .data(colors)
+      .data(utils.getLabelNames())
       .enter()
       .append('circle')
       .attr('class', 'legendMark')
-      .attr('fill', (c, i)=>'rgb('+c+')')
+      .attr('fill', (d, i)=>'rgb('+colors[i]+')')
       .on('mouseover', (_, i)=>{
         let classes = new Set(this.selectedClasses);
         if (!classes.has(i)) {
@@ -1256,14 +1256,22 @@ function TeaserOverlay(renderer, kwargs) {
         if (this.selectedClasses.size == renderer.dataObj.ndim) {
           this.selectedClasses = new Set();
         }
-      });
+      })
+      ;
     this.legendMark = this.svg.selectAll('.legendMark');
+    this.legendMark
+      .data(utils.getLabelNames())
+      .exit().remove();
     this.svg.selectAll('.legendText')
-      .data(labels)
+      .data(utils.getLabelNames())
       .enter()
       .append('text')
-      .attr('class', 'legendText');
-
+      .attr('class', 'legendText')
+      ;
+    this.svg.selectAll('.legendText')
+      .data(utils.getLabelNames())
+      .exit().remove()
+      ;
     this.legendText = this.svg.selectAll('.legendText')
       .attr('alignment-baseline', 'middle')
       .attr('fill', '#333')
@@ -1290,12 +1298,15 @@ function TeaserOverlay(renderer, kwargs) {
 
     //WALKER: text area that will contain amount of points visable
     this.svg.selectAll(".legendCount")
-      .data(['100%', '90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%']) //array of percentages/count will go here
+      .data(utils.getLabelNames())
       .enter() //dont really know what this is for but its needed
       .append('text')
       .attr('class', 'legendCount')
       //.attr('fill', '#333')
       .text("100%");
+    this.svg.selectAll(".legendCount")
+      .data(utils.getLabelNames())
+      .exit().remove();
 
     this.legendCount = this.svg.selectAll('.legendCount');
 
