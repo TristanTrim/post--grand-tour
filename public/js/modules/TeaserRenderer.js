@@ -25,7 +25,7 @@ function TeaserRenderer(gl, program, kwargs) {
   if (!this.hasOwnProperty('shouldAutoNextEpoch')){
     this.shouldAutoNextEpoch = true;
   }
-  this.pointSize0 = this.pointSize || 1.5;
+  this.pointSize0 = this.pointSize || 2;
 
   // ----------------------------
   // ------ direct manip --------
@@ -488,8 +488,14 @@ function TeaserRenderer(gl, program, kwargs) {
     // -- end direct manip --------
     // ----------------------------
 
-    let colors = labels.map((d)=>utils.baseColors[d%utils.baseColors.length]);
-    let bgColors = labels.map((d)=>utils.bgColors[d%utils.bgColors.length]);
+    let colors; let bgColors;
+    if (this.ds_colors.length>0){
+      colors = labels.map((d)=>this.ds_colors[d%this.ds_colors.length]);
+      bgColors = labels.map((d)=>this.ds_colors[d%this.ds_colors.length]);
+    }else{
+      colors = labels.map((d)=>utils.baseColors[d%utils.baseColors.length]);
+      bgColors = labels.map((d)=>utils.bgColors[d%utils.bgColors.length]);
+    }
 
     colors = colors.concat(utils.createAxisColors(dataObj.ndim));
     colors = colors.map((c, i)=>[c[0], c[1], c[2], dataObj.alphas[i]]);
