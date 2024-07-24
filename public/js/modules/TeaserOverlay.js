@@ -51,6 +51,9 @@ function TeaserOverlay(renderer, kwargs) {
 
   d3.select("body")
   .on("keydown", ()=>{
+
+      if(d3.event.repeat) return;
+
       if(this.renderer.mouse_over_fig){
 
         // display mode, hiding or showing points
@@ -81,9 +84,7 @@ function TeaserOverlay(renderer, kwargs) {
         }else if ( this.renderer.sel_mode == "classif" ){
           if (d3.event.key == "c"){
             if (numeric.any(this.renderer.isPointSelected)){
-              this.renderer.createLabel(
-                  this.renderer.isPointSelected
-              );
+              this.renderer.createLabel();
             }
             this.renderer.sel_mode = "";
           }
@@ -108,6 +109,14 @@ function TeaserOverlay(renderer, kwargs) {
               this.renderer.sel_mode = "classif";
           }
         }
+
+      // if over leggg legend
+      }else if (!(this._hovered_label_index===undefined)){
+          if (d3.event.key == "c"){
+            this.renderer.addToLabel(
+                this._hovered_label_index);
+            this.renderer.sel_mode = "";
+          }
       }
   })
   .on("keyup", ()=>{
@@ -1241,15 +1250,22 @@ function TeaserOverlay(renderer, kwargs) {
     .text((l)=>l)
 
     .on('mouseover', (_, i)=>{
+      this._hovered_label_index = i;
       let classes = new Set(this.selectedClasses);
       if (!classes.has(i)) {
         classes.add(i);
       }
       this.onSelectLegend(classes);
     })
-    .on('mouseout', ()=>this.restoreAlpha())
+    .on('mouseout', ()=>{
+      this._hovered_label_index = undefined;
+      this.restoreAlpha();
+    })
     .on('click', (_, i)=>{
-      if (this.selectedClasses.has(i)) {
+      if (this.renderer.sel_mode == "classif"){
+        this.renderer.addToLabel(i);
+        this.renderer.sel_mode = "";
+      }else if (this.selectedClasses.has(i)) {
         this.selectedClasses.delete(i);
       } else {
         this.selectedClasses.add(i);

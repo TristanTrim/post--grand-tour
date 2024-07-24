@@ -47,6 +47,7 @@ function TeaserRenderer(gl, program, kwargs) {
   };
 
   this.createLabel = function(labelMask){
+
     let new_label_index = this.ds_labels.length;
 
     let l, a, b, rgb;
@@ -70,10 +71,20 @@ function TeaserRenderer(gl, program, kwargs) {
     this.ds_colors = this.ds_colors.concat([rgb]);
     this.ds_labels = this.ds_labels.concat(
             ["class"+(new_label_index+1)]);
+
+    this.addToLabel(new_label_index, labelMask);
     this.overlay.initLegend();
+  };
+
+  this.addToLabel = function(label_index,labelMask){
+    // defaults to current selection
+    if (!labelMask){
+        labelMask = this.isPointSelected;
+    }
+    // replaces points of labelMask with new label_index
     this.dataObj.labels = this.dataObj.labels.map((l,i)=>{
         if(labelMask[i]){
-            return new_label_index;
+            return label_index;
         }else{
             return l;
         }
