@@ -54,6 +54,7 @@ function TeaserOverlay(renderer, kwargs) {
       if(this.renderer.mouse_over_fig){
 
         // display mode, hiding or showing points
+
         if ( this.renderer.sel_mode == "display" ){
           if (d3.event.key == "a"){
               this.renderer.isPointShown.fill(true);
@@ -74,8 +75,22 @@ function TeaserOverlay(renderer, kwargs) {
               this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:1);
               this.renderer.sel_mode = "";
           }
-        }else{
+
+        // classification mode
+
+        }else if ( this.renderer.sel_mode == "classif" ){
+          if (d3.event.key == "c"){
+            if (numeric.any(this.renderer.isPointSelected)){
+              this.renderer.createLabel(
+                  this.renderer.isPointSelected
+              );
+            }
+            this.renderer.sel_mode = "";
+          }
+
         // basic selection actions
+
+        }else{
           if (d3.event.key == "a"){
               this.renderer.sel_mode = "add";
               this.selector.attr("stroke-opacity",1);
@@ -85,10 +100,12 @@ function TeaserOverlay(renderer, kwargs) {
           } else if (d3.event.key == "f"){
               this.renderer.sel_mode = "focus";
               this.selector.attr("stroke-opacity",1);
-
-        // enter display (show/hide) cmd
           } else if (d3.event.key == "d"){
+              // enter display (show/hide) cmd
               this.renderer.sel_mode = "display";
+          } else if (d3.event.key == "c"){
+              // enter classification cmd
+              this.renderer.sel_mode = "classif";
           }
         }
       }

@@ -41,9 +41,43 @@ function TeaserRenderer(gl, program, kwargs) {
   // ----------------------------
 
   this.clearLabels = function(){
-    se1.dataObj.labels.fill(0);
+    this.dataObj.labels.fill(0);
     this.overlay.initLegend([[127,127,127]],['unclassed']);
     this.overlay.repositionAll();
+  };
+
+  this.createLabel = function(labelMask){
+    let new_label_index = this.ds_labels.length;
+
+    let l, a, b, rgb;
+    while (true){
+   //   l = Math.random()*20+65;
+   //   a = Math.random()*200-100;
+   //   b = Math.random()*200-100;
+   //   rgb = d3.lab(l,a,b).rgb();
+      h = Math.random()*360;
+      s = Math.random()*.3+.7;
+      l = Math.random()*.3+.6;
+      rgb = d3.hsl(h,s,l).rgb();
+      if (
+          0 < rgb.r && rgb.r < 256
+       && 0 < rgb.g && rgb.g < 256
+       && 0 < rgb.b && rgb.b < 256
+       ) break;
+    }
+
+    rgb = ["r","g","b"].map((x)=>Math.floor(rgb[x]));
+    this.ds_colors = this.ds_colors.concat([rgb]);
+    this.ds_labels = this.ds_labels.concat(
+            ["class"+(new_label_index+1)]);
+    this.overlay.initLegend();
+    this.dataObj.labels = this.dataObj.labels.map((l,i)=>{
+        if(labelMask[i]){
+            return new_label_index;
+        }else{
+            return l;
+        }
+    });
   };
 
   this.overlay = new TeaserOverlay(this, this.overlayKwargs);
@@ -497,7 +531,7 @@ function TeaserRenderer(gl, program, kwargs) {
       bgColors = labels.map((d)=>utils.bgColors[d%utils.bgColors.length]);
     }
 
-    colors = colors.concat(utils.createAxisColors(dataObj.ndim));
+    //colors = colors.concat(utils.createAxisColors(dataObj.ndim));
     colors = colors.map((c, i)=>[c[0], c[1], c[2], dataObj.alphas[i]]);
 
     if (this.mode == 'image') {
