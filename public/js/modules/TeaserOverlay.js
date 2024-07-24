@@ -15,13 +15,35 @@ function TeaserOverlay(renderer, kwargs) {
   let figure = d3.select('d-figure.'+renderer.gl.canvas.id);
   this.figure = figure;
 
+  this.leggg = this.figure.append("div")
+  .attr('class', 'legendMenu')
+  .style("position","absolute")
+  .style("overflow","scroll")
+  .style("background",d3.rgb(255,255,255,0.1))
+  .style("border","5px solid rgb(0,0,0,0)")
+  .style("border-radius","5px")
+  .style("padding-top","8px")
+  ;
+  this.leggg.list = this.leggg.insert("ul");
 
+  // enter and exit regions
+  // where keyboard and mouse
+  // input affects the ndsp
   this.figure
   .on("mouseenter", ()=>{
       this.renderer.mouse_over_fig = true;
   })
   .on("mouseleave", ()=>{
       this.renderer.mouse_over_fig = false;
+  })
+  ;
+
+  this.leggg
+  .on("mouseenter", ()=>{
+      this.renderer.mouse_over_fig = false;
+  })
+  .on("mouseleave", ()=>{
+      this.renderer.mouse_over_fig = true;
   })
   ;
 
@@ -1008,42 +1030,14 @@ function TeaserOverlay(renderer, kwargs) {
       .attr('cy', (c, i)=>this.legend_sy(i+0.5))
       .attr('r', r);
 
-    this.legendText
-      .attr('x', +this.legend_sx(0.0)+2.5*r+2.5*r)
-      .attr('y', (l, i)=>this.legend_sy(i+0.5)+3);
 
-    //WALKER: declaring legend count
-    this.legendCount
-      .attr('x', +this.legend_sx(0.0)+2.5*r+8*r) //8 is a magic value for padding, dunno what it means
-      .attr('y', (l, i)=>this.legend_sy(i+0.5)+3);
+    this.leggg
+      .style('left', this.legend_sx.range()[0]+"px")
+      .style('top', this.legend_sy(-1)+"px")
+      .style("width",this.legend_sx.range()[1]-this.legend_sx.range()[0]+"px")
+      .style("height", this.legend_sy(this.renderer.ds_labels.length+1)-this.legend_sy(-7)+"px")
+      ;
 
-    //WALKER: declaring filter
-    this.confidenceFilter
-      .attr('x', +this.legend_sx(0.0)+2.5*r-5)
-      .attr('y', this.legend_sy(this.renderer.ds_labels.length+1)-this.legend_sy(-1));
-
-    this.legendBox
-      .attr('x', this.legend_sx.range()[0])
-      .attr('y', this.legend_sy(-1))
-      .attr('width', this.legend_sx.range()[1]-this.legend_sx.range()[0])
-      .attr('height', this.legend_sy(this.renderer.ds_labels.length+1)-this.legend_sy(-7)) // WALKER: TODO: increase this later to allow room for more filter tools
-      .attr('rx', r);
-
-    if (this.legendTitle !== undefined){
-      this.legendTitle
-        .attr('x',  this.legend_sx(0.5))
-        .attr('y',  this.legend_sy(-1))
-        .text(utils.legendTitle[this.getDataset()] || '');
-
-      let rectData = this.legendTitle.node().getBBox();
-      let padding = 2;
-      this.legendTitleBg
-        .attr('x', rectData.x-padding)
-        .attr('y', rectData.y-padding)
-        .attr('width', rectData.width+2*padding)
-        .attr('height', rectData.height+2*padding)
-        .attr('opacity', utils.legendTitle[this.getDataset()]? 1:0);
-    }
     if(this.banner){
       this.banner.remove();
     }
@@ -1210,172 +1204,52 @@ function TeaserOverlay(renderer, kwargs) {
       
     this.initLegendScale();
 
-    if(this.legendBox === undefined){
-       this.legendBox = this.svg.selectAll('.legendBox')
-        .data([0])
-        .enter()
-        .append('rect')
-        .attr('class', 'legendBox')
-        .attr('fill', d3.rgb(...utils.CLEAR_COLOR.map(d=>d*255)))
-        .attr('stroke', '#c1c1c1')
-        .attr('stroke-width', 1);
-    }
 
-    if (this.legendTitle === undefined 
-      && utils.legendTitle[this.getDataset()] !== undefined){
-       this.legendTitleBg = this.svg.selectAll('.legendTitleBg')
-        .data([0, ])
-        .enter()
-        .append('rect')
-        .attr('class', 'legendTitleBg')
-        .attr('fill', d3.rgb(...utils.CLEAR_COLOR.map(d=>d*255)));
+    this.legendMark = this.leggg.list.selectAll('.legendMark')
+    .data(labels);
 
-      this.legendTitle = this.svg.selectAll('.legendTitle')
-        .data([utils.legendTitle[this.getDataset()], ])
-        .enter()
-        .append('text')
-        .attr('class', 'legendTitle')
-        .attr('alignment-baseline', 'middle')
-        .attr('text-anchor', 'middle')
-        .text(d=>d);
-    }
-
-   
-
-
-    this.svg.selectAll('.legendMark')
-      .data(labels)
-      .enter()
-      .append('circle')
-      .attr('class', 'legendMark')
-      .attr('fill', (d, i)=>'rgb('+colors[i%colors.length]+')')
-      .on('mouseover', (_, i)=>{
-        let classes = new Set(this.selectedClasses);
-        if (!classes.has(i)) {
-          classes.add(i);
-        }
-        this.onSelectLegend(classes);
-      })
-      .on('mouseout', ()=>this.restoreAlpha())
-      .on('click', (_, i)=>{
-        if (this.selectedClasses.has(i)) {
-          this.selectedClasses.delete(i);
-        } else {
-          this.selectedClasses.add(i);
-        }
-        this.onSelectLegend(this.selectedClasses);
-        if (this.selectedClasses.size == renderer.dataObj.ndim) {
-          this.selectedClasses = new Set();
-        }
-      })
-      ;
-    this.legendMark = this.svg.selectAll('.legendMark');
     this.legendMark
-      .data(labels)
-      .exit().remove();
-    this.svg.selectAll('.legendText')
-      .data(labels)
-      .enter()
-      .append('text')
-      .attr('class', 'legendText')
-      ;
-    this.svg.selectAll('.legendText')
-      .data(labels)
-      .exit().remove()
-      ;
-    this.legendText = this.svg.selectAll('.legendText')
-      .attr('alignment-baseline', 'middle')
-      .attr('fill', '#333')
-      .text((l)=>l)
-      .on('mouseover', (_, i)=>{
-        let classes = new Set(this.selectedClasses);
-        if (!classes.has(i)) {
-          classes.add(i);
-        }
-        this.onSelectLegend(classes);
-      })
-      .on('mouseout', ()=>this.restoreAlpha())
-      .on('click', (_, i)=>{
-        if (this.selectedClasses.has(i)) {
-          this.selectedClasses.delete(i);
-        } else {
-          this.selectedClasses.add(i);
-        }
-        this.onSelectLegend(this.selectedClasses);
-        if (this.selectedClasses.size == renderer.dataObj.ndim) {
-          this.selectedClasses = new Set();
-        }
-      });
+    .exit().remove()
+    ;
+    this.legendMark
+    .enter()
+    .insert("li")
+    .attr('class', 'legendMark')
+    .style("line-height","1em")
+    .style("margin-bottom",0)
+    .style("font-size","0.8em")
 
-    //WALKER: text area that will contain amount of points visable
-    this.svg.selectAll(".legendCount")
-      .data(labels)
-      .enter() //dont really know what this is for but its needed
-      .append('text')
-      .attr('class', 'legendCount')
-      //.attr('fill', '#333')
-      .text("100%");
-    this.svg.selectAll(".legendCount")
-      .data(labels)
-      .exit().remove();
+    .merge(this.legendMark)
+    .style("color", (d, i)=>'rgb('+colors[i%colors.length]+')')
+    .text((l)=>l)
 
-    this.legendCount = this.svg.selectAll('.legendCount');
+    .on('mouseover', (_, i)=>{
+      let classes = new Set(this.selectedClasses);
+      if (!classes.has(i)) {
+        classes.add(i);
+      }
+      this.onSelectLegend(classes);
+    })
+    .on('mouseout', ()=>this.restoreAlpha())
+    .on('click', (_, i)=>{
+      if (this.selectedClasses.has(i)) {
+        this.selectedClasses.delete(i);
+      } else {
+        this.selectedClasses.add(i);
+      }
+      this.onSelectLegend(this.selectedClasses);
+      if (this.selectedClasses.size == renderer.dataObj.ndim) {
+        this.selectedClasses = new Set();
+      }
+    })
+    ;
+    this.legendMark = this.leggg.list.selectAll('.legendMark');
 
-    // WALKER: TODO: restrict input values to only digits
-    this.confidenceFilter = this.svg.selectAll(".confidenceFilter")
-      .data(['100'])
-      .enter()
-      .append('foreignObject')
-      .attr('class', 'confidenceFilter')
-      .attr('width', '100')
-      .attr('height', '100');
-
-    //min confidence
-    this.confidenceFilter
-      .append('xhtml:input')
-      .attr('id', 'minConfidence')
-      .attr('class', 'confidenceFilter')
-      .attr('type', 'number')
-      .attr('min', '0')
-      .attr('max', '100')
-      .attr('size', '3')
-      .attr('value', '0')
-      .attr('style', 'width: 35px; height: 20px; font-size: 10px; margin: 0; -webkit-appearance: none; -moz-appearance: textfield;'); //would love to put this in style.css but cant get it to work
-
-    this.confidenceFilter
-      .append('xhtml:text')
-      .text('-');
-
-    //max confidence
-    this.confidenceFilter
-      .append('xhtml:input')
-      .attr('id', 'maxConfidence')
-      .attr('class', 'confidenceFilter')
-      .attr('type', 'number')
-      .attr('min', '0')
-      .attr('max', '100')
-      .attr('size', '3')
-      .attr('value', '100')
-      .attr('style', 'width: 35px; height: 20px; font-size: 10px; -webkit-appearance: none; -moz-appearance: textfield;');//would love to put this in style.css but cant get it to work
-      
-    this.confidenceFilter
-      .append('xhtml:text')
-      .text('%');
-    
-    this.confidenceFilter
-      .append('xhtml:input')
-      .attr('type', 'button')
-      .attr('value', 'apply')
-      .attr('style', 'width: 80px; line-height: 15px; font-size: 10px;')
-      .on('click', ()=>{
-
-        this.applyFilter();
-        
-      });;
-
-    this.confidenceFilter = this.svg.select('.confidenceFilter');
-      
   };
+
+  // This was a cool idea
+  // and anyway, all data filtering should
+  // share a single pipeline or something similar.
 
   this.applyFilter = function(tempClasses=null) {
     // update percentages (mockup at the moment)
@@ -1438,15 +1312,17 @@ function TeaserOverlay(renderer, kwargs) {
         renderer.dataObj.alphas[i] = 0;
       }
     }
-    this.svg.selectAll('.legendMark')
-      .attr('opacity', (d, j)=>{
-        if (!labelClasses.has(j)) {
-          return 0.1;
+
+    let colors = this.renderer.ds_colors;
+
+    this.legendMark
+      .style('color', (d, i)=>{
+        if (!labelClasses.has(i)) {
+          return d3.rgb(...colors[i%colors.length].concat([0.3]));
         } else {
-          return 1.0;
+          return d3.rgb(...colors[i%colors.length]);
         }
       });
-    // renderer.render(0);
   };
 
 
@@ -1466,15 +1342,18 @@ function TeaserOverlay(renderer, kwargs) {
       }
     }
 
-    this.svg.selectAll('.legendMark')
-      .attr('opacity', (d, i)=>{
+    let colors = this.renderer.ds_colors;
+
+    this.legendMark
+      .style('color', (d, i)=>{
         if (labelClasses.size == 0) {
-          return 1.0;
+          return d3.rgb(...colors[i%colors.length]);
+        } else if (!labelClasses.has(i)) {
+          return d3.rgb(...colors[i%colors.length].concat([0.3]));
         } else {
-          return labelClasses.has(i) ? 1.0:0.1;
+          return d3.rgb(...colors[i%colors.length]);
         }
       });
   
-    this.applyFilter();
   };
 }

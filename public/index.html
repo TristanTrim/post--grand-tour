@@ -190,50 +190,53 @@
 
     window.addEventListener("wheel", event => {
       // scroll wheel no longer scrols pag
-      event.preventDefault();
-      const delta = Math.sign(event.deltaY);
-
-      let zoomTickFac = 1.1;
-
-      // offset plot while zooming
-      overlayPos = document.getElementsByClassName("overlay")[0].getBoundingClientRect();
-      overlayMidX = overlayPos.x + (overlayPos.width/2);
-      overlayMidY = overlayPos.y + (overlayPos.height/2);
-      mouseInOverlayX = event.pageX - overlayMidX +40;
-      mouseInOverlayY = event.pageY - overlayMidY +20;
+      if (se1.mouse_over_fig){
       
-      oldXDelta = mouseInOverlayX - se1.yOffset; // x y switcherooo!
-      oldYDelta = mouseInOverlayY - se1.xOffset;
+        event.preventDefault();
+        const delta = Math.sign(event.deltaY);
 
-      if (delta < 0) {
+        let zoomTickFac = 1.1;
 
-	      if (true){//se1.scaleFactor < 1000) { // max zoom (only go a little beyond it)
-		// new zoom level
-		se1.scaleFactor *= zoomTickFac; //up
+        // offset plot while zooming
+        overlayPos = document.getElementsByClassName("overlay")[0].getBoundingClientRect();
+        overlayMidX = overlayPos.x + (overlayPos.width/2);
+        overlayMidY = overlayPos.y + (overlayPos.height/2);
+        mouseInOverlayX = event.pageX - overlayMidX +40;
+        mouseInOverlayY = event.pageY - overlayMidY +20;
+        
+        oldXDelta = mouseInOverlayX - se1.yOffset; // x y switcherooo!
+        oldYDelta = mouseInOverlayY - se1.xOffset;
 
-		// new zoom offset
-		newXDelta = zoomTickFac * oldXDelta;
-		newYDelta = zoomTickFac * oldYDelta;
+        if (delta < 0) {
 
-		se1.yOffset = mouseInOverlayX - newXDelta ;
-		se1.xOffset = mouseInOverlayY - newYDelta ;
-	}
+          if (true){//se1.scaleFactor < 1000) { // max zoom (only go a little beyond it)
+      // new zoom level
+      se1.scaleFactor *= zoomTickFac; //up
 
-      } else if (delta > 0) {
-        if (se1.scaleFactor > 0.2) { //min zoom (only go a little less )
-		// new zoom level
-		se1.scaleFactor /= zoomTickFac; //down
+      // new zoom offset
+      newXDelta = zoomTickFac * oldXDelta;
+      newYDelta = zoomTickFac * oldYDelta;
 
-		// new zoom offset
-		newXDelta = oldXDelta / zoomTickFac;
-		newYDelta = oldYDelta / zoomTickFac;
+      se1.yOffset = mouseInOverlayX - newXDelta ;
+      se1.xOffset = mouseInOverlayY - newYDelta ;
+    }
 
-		se1.yOffset = mouseInOverlayX - newXDelta ;
-		se1.xOffset = mouseInOverlayY - newYDelta ;
+        } else if (delta > 0) {
+          if (se1.scaleFactor > 0.2) { //min zoom (only go a little less )
+      // new zoom level
+      se1.scaleFactor /= zoomTickFac; //down
+
+      // new zoom offset
+      newXDelta = oldXDelta / zoomTickFac;
+      newYDelta = oldYDelta / zoomTickFac;
+
+      se1.yOffset = mouseInOverlayX - newXDelta ;
+      se1.xOffset = mouseInOverlayY - newYDelta ;
+          }
         }
-      }
 
-    // console.log(se1.scaleFactor); //
+      // console.log(se1.scaleFactor); //
+    }
 
     }, {passive:false} // allow call to preventDefault cause there aint no scrolling on this page!
     );
