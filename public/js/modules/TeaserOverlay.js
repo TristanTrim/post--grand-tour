@@ -54,6 +54,10 @@ function TeaserOverlay(renderer, kwargs) {
 
       if(d3.event.repeat) return;
 
+      if (d3.event.key == "q"){
+        this.renderer.sel_mode = "";
+      }
+
       if(this.renderer.mouse_over_fig){
 
         // display mode, hiding or showing points
