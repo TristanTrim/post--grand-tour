@@ -41,9 +41,11 @@ function TeaserRenderer(gl, program, kwargs) {
   // ----------------------------
 
   this.clearLabels = function(){
-    this.dataObj.labels.fill(0);
-    this.overlay.initLegend([[127,127,127]],['unclassed']);
-    this.overlay.repositionAll();
+    if( confirm("Clear labels? (unsaved permenantly lost!)")){
+      this.dataObj.labels.fill(0);
+      this.overlay.initLegend([[127,127,127]],['unclassed']);
+      this.overlay.repositionAll();
+    }
   };
 
   this.createLabel = function(labelMask){
@@ -612,4 +614,40 @@ function TeaserRenderer(gl, program, kwargs) {
     }
     return;
   }; // end render fn ----------------------
+
+  this.dumpClassif = function(){
+    d3.select("#textdump")
+    .text(
+        "colors, labels, classif = "
+        + JSON.stringify( se1.ds_colors )
+        + ",  "
+        + JSON.stringify( se1.ds_labels )
+        + ",  "
+        + JSON.stringify( se1.dataObj.labels )
+    )
+    .transition()
+    .style("opacity",1)
+    ;
+    setTimeout(()=>{
+      d3.select("#textdump")
+      .transition()
+      //.ease(d3.easeQuadOut)
+      .duration("10000")
+      .style("opacity",0)
+      .transition()
+      .text("");
+    }, 10000);
+  }
+
+  this.loadClassif = function(){
+    let inp = prompt("paste:")
+    if ( inp ){
+      let [colors,labels,classif] = JSON.parse(inp);
+      this.dataObj.labels = classif;
+      this.overlay.initLegend(colors,labels);
+      this.overlay.repositionAll();
+
+    }
+  };
+
 }

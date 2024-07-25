@@ -1248,6 +1248,8 @@ function TeaserOverlay(renderer, kwargs) {
     .style("line-height","1em")
     .style("margin-bottom",0)
     .style("font-size","0.8em")
+    .style("text-shadow","-.5px -.5px 0.5px #000, -.5px .5px 0.5px #000, .5px -.5px 0.5px #000, .5px .5px 0.5px #000")
+    .style("font-weight",900)
 
     .merge(this.legendMark)
     .style("color", (d, i)=>'rgb('+colors[i%colors.length]+')')

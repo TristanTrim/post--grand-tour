@@ -289,12 +289,13 @@ function wiggle(){
 <a onclick="wiggleAxisIndex= 9;">(9)</a>
 <br> <a onclick="se1.overlay.initAxisHandle();">reload axis handles</a>
 <br> <a onclick="se1.overlay.svg.anchors.attr('hidden',true);">hide axis handles</a>
-<br> <a onclick="se1.dataObj.alphas.fill(255);">reset dp alphas</a>
-<br> <a onclick="se1.clearLabels();">clear classif</a>
+<br> <a onclick="se1.clearLabels();">classif: - clear (!) </a>
+<br> <a onclick="se1.dumpClassif();">classif: - dump</a>
+<br> <a onclick="se1.loadClassif();">classif: - load</a>
 
 </figcaption>
 
-
+<div id="textdump" style="overflow:scroll; height: 50px; width: 700px opacity:0"></div>
 
   </ul>
 </p>
