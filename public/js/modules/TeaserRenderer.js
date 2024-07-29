@@ -119,11 +119,20 @@ function TeaserRenderer(gl, program, kwargs) {
     console.log(url);
     console.log(buffer);
 
+    if (
+      this.dataObj._dataTensorLoaded
+      && this.dataObj._labelsLoaded ) {
+          this.dataObj._dataTensorLoaded = false;
+          this.dataObj._labelsLoaded = false;
+    }
+
     if (url.includes('labels')) {
       console.log("it's labels! : ) ");
 
       this.dataObj.labels = Array.from(new Int8Array(buffer));
       this.shouldRecalculateColorRect = true;
+
+      this.dataObj._labelsLoaded = true;
 
     } else {
       let arr = new Float32Array(buffer);
@@ -131,10 +140,9 @@ function TeaserRenderer(gl, program, kwargs) {
 
       format_match = url.match(/._([0-9]*)af_([0-9]*)dp_([0-9]*)dim_\./);
       if (format_match){
-        let nepoch = parseInt(format_match[1]);
-        let npoint = parseInt(format_match[2]);
+        nepoch = parseInt(format_match[1]);
+        npoint = parseInt(format_match[2]);
         // TODO: make sure dim matches? probs not important.
-        let arr = new Float32Array(buffer);
 
       } else if (url.includes('test_img')
             || url.includes('b1_conv')
@@ -169,28 +177,32 @@ function TeaserRenderer(gl, program, kwargs) {
       // -- end direct manip --------
       // ----------------------------
 
+      this.dataObj._dataTensorLoaded = true;
 
     }
 
-    if (this.dataObj.dataTensor !== undefined 
-      && this.dataObj.labels !== undefined) {
-      this.isDataReady = true;
-      let dataTensor = this.dataObj.dataTensor;
-      // this.dataObj.trajectoryLength = 5;
-      this.dataObj.dmax = 1.05*math.max(math.abs(
-        dataTensor[dataTensor.length-1]));
-      this.dataObj.ndim = dataTensor[0][0].length;
-      this.dataObj.npoint = dataTensor[0].length;
-      this.dataObj.nepoch = dataTensor.length;
-      if (this.dataObj.alphas === undefined) {
-        this.dataObj.alphas = d3.range(
-          this.dataObj.npoint + 5*this.dataObj.npoint).map((_) => 255);
-      } else {
-        this.overlay.restoreAlpha();
-      }
-      this.initGL(this.dataObj);
+    if (
+        this.dataObj._dataTensorLoaded
+        && this.dataObj._labelsLoaded
+      ) {
+        this.isDataReady = true;
+        let dataTensor = this.dataObj.dataTensor;
+        // this.dataObj.trajectoryLength = 5;
+    //    this.dataObj.dmax = 1.05*math.max(math.abs(
+    //      dataTensor[dataTensor.length-1]));
+        this.dataObj.ndim = dataTensor[0][0].length;
+        this.dataObj.npoint = dataTensor[0].length;
+        this.dataObj.nepoch = dataTensor.length;
+        if (this.dataObj.alphas === undefined) {
+          // TODO: surely this should be just set to # npoint???
+          this.dataObj.alphas = d3.range(
+            this.dataObj.npoint + 5*this.dataObj.npoint).map((_) => 255);
+        } else {
+          this.overlay.restoreAlpha();
+        }
+        this.initGL(this.dataObj);
     }else{
-      this.isDataReady = false;
+        this.isDataReady = false;
     }
 
     
