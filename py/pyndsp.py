@@ -3,6 +3,21 @@ import numpy as np
 
 
 def to_ndsp_file(data, labels=None, title="untitled", dimAx=0, afAx=None):
+    """
+    to_ndsp_file(data, labels=None, title="untitled", dimAx=0, afAx=None)
+
+    data: nd numpy array
+    labels: 1d numpy array integer classes of each datapoint
+            or "zeros" to generate empty classes
+    title: human readable string for file identification
+
+    dimAx: which axis should be used for dimensions in ndsp
+    afAx: which axis should become animated timeline.
+          set None for no timeline.
+
+    ( axes not marked by dimAx or afAx will be treated as datapoints )
+
+    """
 
     # move from torch to numpy if not already done
     if not type(data) == np.ndarray:
