@@ -65,3 +65,17 @@ def to_ndsp_file(data, labels=None, title="untitled", dimAx=0, afAx=None):
         labels.tofile(flname)
             
 
+def classif_pastedump(colors, labels, classif):
+    """
+    classif_pastedump(colors, labels, classif)
+
+    colors: list of rgb lists. values in [0, 255] as you do.
+    labels: list of strings or stringable obj for class labels.
+    classif: 0 indexed label class for each datapoint
+    """
+    colors = list(list(x) for x in colors)
+    labels = list(str(x) for x in labels)
+    classif = list(int(x) for x in classif)
+
+    return str([colors, labels, classif]).replace("'",'"')
+
