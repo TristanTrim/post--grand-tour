@@ -13,45 +13,67 @@
         <p></p>
       <a href="
 
-               javascript:(function() {
-  window.circle = document.createElement('div');
-  window.circle.style.position = 'absolute';
-  window.circle.style.top = '50%';
-  window.circle.style.left = '50%';
-  window.circle.style.transform = 'translate(-50%, -50%)';
-  window.circle.style.borderRadius = '50%';
-  window.circle.style.border = '4px solid red';
-  window.circle.style.width = '50px';
-  window.circle.style.height = '50px';
-  window.circle.style.pointerEvents = 'none';
-  
-  document.body.appendChild(window.circle);
-  
+javascript:(function() {
+  window.mouseMark = document.createElement('div');
+  mouseMark.style.position = 'fixed';
+  mouseMark.style.top = '50%';
+  mouseMark.style.left = '50%';
+  mouseMark.style.transform = 'translate(-50%, -50%)';
+  mouseMark.style.borderRadius = '50%';
+  mouseMark.style.pointerEvents = 'none';
+  mouseMark.style.zIndex=9001;
+  mouseMark._showingDbl = false;
+  mouseMark.backToNormal = function(){
+      if (!mouseMark._showingDbl){
+          mouseMark.style.opacity = '.3';
+          mouseMark.style.border = '16px solid red';
+          mouseMark.style.width = '60px';
+          mouseMark.style.height = '60px';
+      }
+  };
+  mouseMark.showSingle = function(){
+      mouseMark.style.opacity = '1';
+      mouseMark.style.border = '8px dotted red';
+      mouseMark.style.width = '90px';
+      mouseMark.style.height = '90px';
+      setTimeout(mouseMark.backToNormal, 200);
+  };
+  mouseMark.showDbl = function(){
+      mouseMark._showingDbl = true;
+      mouseMark.style.opacity = '1';
+      mouseMark.style.border = '12px dashed red';
+      mouseMark.style.width = '100px';
+      mouseMark.style.height = '100px';
+      setTimeout(function() {
+          mouseMark._showingDbl = false;
+          mouseMark.backToNormal();
+      }, 400);
+  };
+  mouseMark.cb = mouseMark.backToNormal;
+  mouseMark.backToNormal();
+  document.body.appendChild(mouseMark);
+  document.addEventListener('dblclick', function(event) {
+      mouseMark.showDbl();
+  });
   document.addEventListener('mousedown', function(event) {
-    window.circle.style.top = event.clientY + window.scrollY + 'px';
-    window.circle.style.left = event.clientX + window.scrollX + 'px';
-    window.circle.style.opacity = '1';
-    window.circle.style.visibility ='visible';
+      mouseMark.style.opacity = '1';
+      mouseMark.style.border = '8px solid red';
+      mouseMark.style.width = '70px';
+      mouseMark.style.height = '70px';
+      mouseMark.cb = mouseMark.showSingle;
+      setTimeout(function() {
+          mouseMark.cb = mouseMark.backToNormal;
+      }, 500);
   });
-
   document.addEventListener('mousemove', function(event) {
-    if(event.buttons == 1){
-      window.circle.style.top = event.clientY + window.scrollY + 'px';
-      window.circle.style.left = event.clientX + window.scrollX + 'px';
-    }
+      mouseMark.style.top = event.clientY + 'px';
+      mouseMark.style.left = event.clientX + 'px';
   });
-
   document.addEventListener('mouseup', function(event) {
-    setTimeout(function() {
-      window.circle.style.visibility ='hidden';
-    }, 200);
+      mouseMark.cb();
   });
-  
-  var styleSheet = document.createElement('style');
-  styleSheet.innerHTML = '@keyframes blinking {0% {opacity: 1;} 50% {opacity: 0;} 100% {opacity: 1;}}';
-  document.head.appendChild(styleSheet);
 })();
                  
-                 ">Here's a click hl bookmarklet.</a>
+                 ">⬉HL</a> &lt;--Here's a click hl bookmarklet.
     </body>
     </html>
