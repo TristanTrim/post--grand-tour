@@ -35,8 +35,9 @@ seFigure1.addEventListener("ready", function() {
     }
 
     se1.overlay.datasetSelection.selectAll('option')
-    .property('selected', d=>{
-      return d.value == dataset;
+    .property('selected', (d,i,b)=>{
+      let selectoid = b[i];
+      return selectoid.value == dataset;
     });
 
     console.log("oh y'kno");

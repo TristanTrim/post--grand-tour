@@ -138,10 +138,19 @@ function TeaserRenderer(gl, program, kwargs) {
       let arr = new Float32Array(buffer);
       let nepoch; let npoint;
 
-      format_match = url.match(/._([0-9]*)af_([0-9]*)dp_([0-9]*)dim_\./);
+      format_match = url.match(/(.*)\._([0-9]*)af_([0-9]*)dp_([0-9]*)dim_\./);
       if (format_match){
-        nepoch = parseInt(format_match[1]);
-        npoint = parseInt(format_match[2]);
+
+
+//        utils.dataset = format_match[1];
+        se1.overlay.datasetSelection
+        .append("option")
+        .text(format_match[1])
+        .attr("value","")
+        .property('selected', true);
+
+        nepoch = parseInt(format_match[2]);
+        npoint = parseInt(format_match[3]);
         // TODO: make sure dim matches? probs not important.
 
       } else if (url.includes('test_img')
@@ -153,6 +162,7 @@ function TeaserRenderer(gl, program, kwargs) {
           nepoch = 100;
           npoint = 1000;
       }
+
 
       if (this.epochIndex > nepoch-1){
         this.setEpochIndex(nepoch-1);

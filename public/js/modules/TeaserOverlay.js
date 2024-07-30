@@ -926,17 +926,12 @@ function TeaserOverlay(renderer, kwargs) {
       return (d == this.renderer.mode) ? 'selected':null;
     });
 
-  this.datasetOption = this.controlOptionGroup
-    .insert('div', ':first-child')
-    .attr('class', 'form-group datasetOption');
-  this.datasetLabel = this.datasetOption
-    .append('label')
-    .text('Dataset: ');
-  this.datasetSelection = this.datasetLabel
-    .append('select')
-    .on('change', function() {
+  this.respondToChangedDataset = function(){
+
       let dataset = d3.select(this).property('value');
-      if (dataset == "__load_file__"){
+      if (dataset == "__load_file__"
+          || dataset === undefined
+          ){
 
   // ----- TODO: move this to utils --------------
 
@@ -949,33 +944,49 @@ function TeaserOverlay(renderer, kwargs) {
               console.log(input);
               console.log(input[0].files);
 
+
               var fl1 = input[0].files[0];
               fl1.arrayBuffer().then((f)=>{
                     console.log(f);
                     // TODO: not this
                     se1.overlay.renderer.initData(f, fl1.name);
+                    se1.overlay.initAxisHandle();
                     });
 
               var fl2 = input[0].files[1];
               if (fl2){
                 fl2.arrayBuffer().then((f)=>{
-                      console.log(f);
-                      // TODO: not this
-                      se1.overlay.renderer.initData(f, fl2.name);
-                      });
+                    console.log(f);
+                    // TODO: not this
+                    se1.overlay.renderer.initData(f, fl2.name);
+                    se1.overlay.initAxisHandle();
+                    });
               }
 
           });
 
         // add onchange handler if you wish to get the file :)
         input.trigger("click"); // opening dialog
+        delete input;
 
  //--------------------------------------------------
 
       }else{
         utils.setDataset(dataset);
       }
-    });
+
+  };
+
+  this.datasetOption = this.controlOptionGroup
+    .insert('div', ':first-child')
+    .attr('class', 'form-group datasetOption');
+  this.datasetLabel = this.datasetOption
+    .append('label')
+    .text('Dataset: ');
+  this.datasetSelection = this.datasetLabel
+    .append('select')
+    .on('change', this.respondToChangedDataset
+    );
   this.datasetSelection.selectAll('option')
     .data([
       {value:'mnist',text:'MNIST'}, 
