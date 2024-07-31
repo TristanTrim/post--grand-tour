@@ -49,8 +49,14 @@ function TeaserOverlay(renderer, kwargs) {
 
   this.renderer.sel_mode = "";
 
+  // TODO: maybe have actions
+  // trigger on keyup instead of keydown
+  // (aside from selection duration things)
   d3.select("body")
   .on("keydown", ()=>{
+
+  // TODO: make a bunch of this stuff into functions.
+  // also fix the rendering of the points ffs
 
       if(d3.event.repeat) return;
 
@@ -116,13 +122,140 @@ function TeaserOverlay(renderer, kwargs) {
 
       // if over leggg legend
       }else if (!(this._hovered_label_index===undefined)){
-          if (d3.event.key == "c"){
+          if ( this.renderer.sel_mode == "display" ){
+
+            // add, show this if it wasn't shown
+              if (d3.event.key == "a"){
+
+                  this.renderer.isPointShown = 
+                      numeric.or(
+                        this.renderer.isPointShown,
+                        // stuff to be added
+                        this.renderer.dataObj.labels.map((x)=>{
+                            return x == this._hovered_label_index;
+                        })
+                      );
+
+                  this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:0);
+                  this.renderer.sel_mode = "";
+
+            // subtract, don't show this class
+              } else if (d3.event.key == "s"){
+
+                  this.renderer.isPointShown = 
+                      numeric.and(
+                        this.renderer.isPointShown,
+                        numeric.not(
+                            // stuff to be subtracted
+                            this.renderer.dataObj.labels.map((x)=>{
+                                return x == this._hovered_label_index;
+                            })
+                        )
+                      );
+
+                  this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:0);
+                  this.renderer.sel_mode = "";
+
+              } else if (d3.event.key == "f"){
+                  this.renderer.isPointShown = 
+                        this.renderer.dataObj.labels.map((x)=>{
+                            return x == this._hovered_label_index;});
+
+                  this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:1);
+                  this.renderer.sel_mode = "";
+              }
+
+              //
+              // end hover leggg display mode
+
+          } else if (d3.event.key == "c"){
             this.renderer.addToLabel(
                 this._hovered_label_index);
             this.renderer.sel_mode = "";
+
+          // display mode in leggg
+          } else if (d3.event.key == "d"){
+              // enter display (show/hide) cmd
+              this.renderer.sel_mode = "display";
+
+          // add class to selection
+          } else if (d3.event.key == "a"){
+              // selected
+              this.renderer.isPointSelected = 
+                  numeric.or(
+                    this.renderer.isPointSelected,
+                    // stuff to be added
+                    this.renderer.dataObj.labels.map((x)=>{
+                        return x == this._hovered_label_index;
+                    })
+                  );
+
+              // shown
+              this.renderer.isPointShown = 
+                  numeric.or(
+                    this.renderer.isPointShown,
+                    // stuff to be added
+                    this.renderer.dataObj.labels.map((x)=>{
+                        return x == this._hovered_label_index;
+                    })
+                  );
+
+            this.reHighlight(this.renderer.isPointSelected);
+            this.renderer.hlPoints =  this.reCentroid(
+                    this.renderer.isPointSelected  );
+
+            //  this.renderer.dataObj.alphas = this.renderer.isPointShown.map((brushy,i)=>brushy?255:0);
+              this.renderer.sel_mode = "";
+
+          // sub class from selection
+          } else if (d3.event.key == "s"){
+
+              // selected
+              this.renderer.isPointSelected = 
+                  numeric.and(
+                    this.renderer.isPointSelected,
+                    numeric.not(
+                        // stuff to be subtracted
+                        this.renderer.dataObj.labels.map((x)=>{
+                            return x == this._hovered_label_index;
+                        })
+                    )
+                  );
+
+            this.reHighlight(this.renderer.isPointSelected);
+            this.renderer.hlPoints =  this.reCentroid(
+                    this.renderer.isPointSelected  );
+
+              this.renderer.sel_mode = "";
+
+          // select class
+          } else if (d3.event.key == "f"){
+
+              // selected
+              this.renderer.isPointSelected = 
+                    this.renderer.dataObj.labels.map((x)=>{
+                        return x == this._hovered_label_index;});
+
+              // shown
+              this.renderer.isPointShown = 
+                  numeric.or(
+                    this.renderer.isPointShown,
+                    // stuff to be added
+                    this.renderer.dataObj.labels.map((x)=>{
+                        return x == this._hovered_label_index;
+                    })
+                  );
+
+            this.reHighlight(this.renderer.isPointSelected);
+            this.renderer.hlPoints =  this.reCentroid(
+                    this.renderer.isPointSelected  );
+              this.renderer.sel_mode = "";
+
           }
+
+
       }
-  })
+  }) // end onkeydown
   .on("keyup", ()=>{
       if (d3.event.key == "a"
         ||d3.event.key == "s"
@@ -273,6 +406,43 @@ function TeaserOverlay(renderer, kwargs) {
     });
 
 
+  this.reHighlight = (highlightMask)=>{
+
+      if (highlightMask === undefined){
+          highlightMask = this.renderer.isPointHighlighted;
+      }else{
+          this.renderer.isPointHighlighted = highlightMask;
+      }
+
+      this.renderer.dataObj.alphas = highlightMask.map((brushy,i)=>{
+        if (brushy) {
+            return 255;
+        } else if (this.renderer.isPointShown[i]){
+          return 80;
+        }else {
+          return 0;
+        }
+      });
+  };
+
+  this.reCentroid = (pointMask)=>{
+
+      let points = this.renderer.dataObj.points.filter((d,i)=>pointMask[i]);
+
+      if (points.length>0){
+        let pointsMean = math.mean(points,0);
+        this.centroidHandle
+          .attr("cx",pointsMean[0])
+          .attr("cy",pointsMean[1])
+          .attr("opacity",1)
+          ;
+      }else{
+        this.centroidHandle .attr("opacity",0) ;
+      }
+
+      return points;
+  };
+
   this.svg = figure
     .insert('svg', ':first-child')
     .attr('class', 'overlay')
@@ -353,31 +523,11 @@ function TeaserOverlay(renderer, kwargs) {
               }
             }
 
-            this.renderer.isPointHighlighted = isHighlighted;
+            this.reHighlight(isHighlighted);
 
-            this.renderer.dataObj.alphas = this.renderer.isPointHighlighted.map((brushy,i)=>{
-              if (brushy) {
-                  return 255;
-              } else if (this.renderer.isPointShown[i]){
-                return 32;
-              }else {
-                return 0;
-              }
-            });
+            this.renderer.hlPoints =  this.reCentroid(
+                    this.renderer.isPointHighlighted  );
 
-
-            this.renderer.hlPoints = this.renderer.dataObj.points.filter((d,i)=>this.renderer.isPointHighlighted[i]);
-
-            if (this.renderer.hlPoints.length>0){
-              let pointsMean = math.mean(this.renderer.hlPoints,0);
-              this.centroidHandle
-                .attr("cx",pointsMean[0])
-                .attr("cy",pointsMean[1])
-                .attr("opacity",1)
-                ;
-            }else{
-              this.centroidHandle .attr("opacity",0) ;
-            }
 
         } else {
           this.renderer.brush_start_pos = [x1,y1];
@@ -597,6 +747,7 @@ function TeaserOverlay(renderer, kwargs) {
             rot[0][1] = sin;
             rot[1][0] = -sin;
             rot[1][1] = cos;
+            // TODO this line gets Uncaught Error: no convergence.
             let dmatrix = numeric.transpose(basis);
             dmatrix = numeric.dot(dmatrix, rot);
             dmatrix = numeric.dot(dmatrix, basis);
